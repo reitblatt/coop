@@ -186,8 +186,8 @@ export default function ManualReviewJobRelatedUserComponent(props: {
     moreInfoData.partialItems.items[0].__typename === 'UserItem'
       ? moreInfoData.partialItems.items[0]
       : userItemData?.latestItemSubmissions[0]?.__typename === 'UserItem'
-      ? userItemData.latestItemSubmissions[0]
-      : undefined;
+        ? userItemData.latestItemSubmissions[0]
+        : undefined;
 
   const userItem = userItemData?.latestItemSubmissions?.find(
     (it) => it.__typename === 'UserItem',
@@ -348,8 +348,8 @@ export default function ManualReviewJobRelatedUserComponent(props: {
                 moreInfoError != null
                   ? 'Error Fetching Data'
                   : moreInfo != null && isEmpty(moreInfo?.data)
-                  ? 'No info returned'
-                  : undefined
+                    ? 'No info returned'
+                    : undefined
               }
             />
           ) : undefined}
