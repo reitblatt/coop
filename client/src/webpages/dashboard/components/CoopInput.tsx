@@ -8,7 +8,7 @@ export default function CoopInput(props: {
   value?: string;
   error?: boolean;
 }) {
-  const { type, placeholder, onChange, disabled, error } = props;
+  const { type, placeholder, onChange, disabled, value, error } = props;
   return (
     <input
       className={`block w-full px-3 py-2 ring-2 text-base border-solid rounded placeholder:text-gray-500 disabled:opacity-50 disabled:pointer-events-none ${
@@ -20,7 +20,8 @@ export default function CoopInput(props: {
       placeholder={placeholder}
       onChange={onChange}
       disabled={disabled}
-      value={props.value ?? ''}
+      aria-invalid={error}
+      value={value ?? ''}
     />
   );
 }
