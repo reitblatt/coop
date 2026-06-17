@@ -262,7 +262,6 @@ const Signal: GQLSignalResolvers = {
     }
   },
   async eligibleSubcategories(signal, _, context) {
-    // For Zentropi signals, return org-specific labeler versions as subcategories
     if (signal.id.type === 'ZENTROPI_LABELER') {
       const user = context.getUser();
       if (user) {
@@ -271,6 +270,18 @@ const Signal: GQLSignalResolvers = {
           'ZENTROPI',
         );
         if (config?.name === 'ZENTROPI') {
+          // Self-hosted mode: criteria text is entered free-form in the rule builder.
+          // Return a sentinel that tells the UI to show a free-text textarea.
+          if (config.apiCredential.selfHosted != null) {
+            return [
+              {
+                id: '__free_text__',
+                label: 'Enter policy criteria',
+                childrenIds: [],
+              },
+            ];
+          }
+          // Hosted mode: return labeler versions configured in the integration.
           const versions = (config.apiCredential.labelerVersions ??
             []) as Array<{
             id: string;

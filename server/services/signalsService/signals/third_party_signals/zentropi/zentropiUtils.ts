@@ -63,7 +63,6 @@ export async function runZentropiLabelerImpl(
   fetchOpenAICompatibleScore: FetchOpenAICompatibleScore,
 ) {
   const { value, orgId, subcategory } = input;
-
   const credential = await getZentropiCredentials(orgId);
 
   if (!subcategory) {

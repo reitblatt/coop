@@ -1,5 +1,5 @@
 import { SearchOutlined } from '@ant-design/icons';
-import { Input, Select } from 'antd';
+import { Button, Input, Select } from 'antd';
 import omit from 'lodash/omit';
 import { useState } from 'react';
 
@@ -14,8 +14,9 @@ export function RuleFormSignalModalSubcategoryGallery(props: {
   subcategories: readonly GQLSignalSubcategory[];
   onSelectSubcategoryOption: (option: string) => void;
 }) {
-  const { subcategories, onSelectSubcategoryOption } = props;
+  const { signal, subcategories, onSelectSubcategoryOption } = props;
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [freeText, setFreeText] = useState<string>(signal.subcategory ?? '');
 
   const stripped = subcategories.map((subcategory) =>
     omit(subcategory, '__typename'),
@@ -24,6 +25,39 @@ export function RuleFormSignalModalSubcategoryGallery(props: {
   // Check if subcategories are flat (no parent-child tree structure).
   // Flat subcategories have no childrenIds, so the tree rebuild filters them all out.
   const hasTreeStructure = stripped.some((s) => s.childrenIds.length > 0);
+
+  // Sentinel used when a signal needs free-text criteria (e.g. Zentropi self-hosted).
+  const isFreeText =
+    !hasTreeStructure &&
+    stripped.length === 1 &&
+    stripped[0].id === '__free_text__';
+
+  if (isFreeText) {
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="pb-1 text-2xl font-medium">Enter Policy Criteria</div>
+        <div className="text-sm text-gray-500">
+          Describe the policy the model should evaluate content against.
+        </div>
+        <Input.TextArea
+          rows={6}
+          className="max-w-lg"
+          placeholder="e.g. The content contains hate speech targeting a protected group."
+          value={freeText}
+          onChange={(e) => setFreeText(e.target.value)}
+        />
+        <div>
+          <Button
+            type="primary"
+            disabled={!freeText.trim()}
+            onClick={() => onSelectSubcategoryOption(freeText.trim())}
+          >
+            Confirm
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!hasTreeStructure && stripped.length > 0) {
     // Render a simple dropdown for flat subcategories (e.g. Zentropi labeler versions)
