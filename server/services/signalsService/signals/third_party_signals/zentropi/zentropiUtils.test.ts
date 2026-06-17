@@ -4,6 +4,7 @@ import { isCoopErrorOfType } from '../../../../../utils/errors.js';
 import { type FetchHTTP } from '../../../../networkingService/index.js';
 import { type CachedGetCredentials } from '../../../../signalAuthService/signalAuthService.js';
 import { type SignalInput } from '../../SignalBase.js';
+import { type FetchOpenAICompatibleScore } from '../openai_compatible/openaiCompatibleUtils.js';
 import {
   getZentropiScores,
   runZentropiLabelerImpl,
@@ -39,6 +40,15 @@ function makeCredentialGetter(
   );
 }
 
+function makeOpenAICompatibleFetcher(): FetchOpenAICompatibleScore {
+  return Object.assign(
+    jest
+      .fn()
+      .mockResolvedValue({ score: 0 }) as unknown as FetchOpenAICompatibleScore,
+    { close: jest.fn().mockResolvedValue(undefined) },
+  );
+}
+
 describe('zentropiUtils', () => {
   describe('score mapping', () => {
     it('maps label=1, high confidence to high score (violating)', async () => {
@@ -51,6 +61,7 @@ describe('zentropiUtils', () => {
         makeCredentialGetter(),
         makeInput(),
         fetchScores,
+        makeOpenAICompatibleFetcher(),
       );
 
       expect(result.score).toBe(0.95);
@@ -66,6 +77,7 @@ describe('zentropiUtils', () => {
         makeCredentialGetter(),
         makeInput(),
         fetchScores,
+        makeOpenAICompatibleFetcher(),
       );
 
       expect(result.score).toBeCloseTo(0.05);
@@ -81,6 +93,7 @@ describe('zentropiUtils', () => {
         makeCredentialGetter(),
         makeInput(),
         fetchScores,
+        makeOpenAICompatibleFetcher(),
       );
 
       expect(result.score).toBeCloseTo(0.4);
@@ -96,6 +109,7 @@ describe('zentropiUtils', () => {
         makeCredentialGetter(),
         makeInput(),
         fetchScores,
+        makeOpenAICompatibleFetcher(),
       );
 
       expect(result.score).toBe(0.6);
@@ -111,6 +125,7 @@ describe('zentropiUtils', () => {
         makeCredentialGetter(),
         makeInput(),
         fetchScores,
+        makeOpenAICompatibleFetcher(),
       );
 
       expect(result.score).toBe(0.95);
@@ -126,6 +141,7 @@ describe('zentropiUtils', () => {
         makeCredentialGetter(),
         makeInput(),
         fetchScores,
+        makeOpenAICompatibleFetcher(),
       );
 
       expect(result.score).toBeCloseTo(0.05);
@@ -141,6 +157,7 @@ describe('zentropiUtils', () => {
         makeCredentialGetter(),
         makeInput(),
         fetchScores,
+        makeOpenAICompatibleFetcher(),
       );
 
       expect(result.outputType).toEqual({ scalarType: ScalarTypes.NUMBER });
@@ -156,6 +173,7 @@ describe('zentropiUtils', () => {
           makeCredentialGetter(null),
           makeInput(),
           fetchScores,
+          makeOpenAICompatibleFetcher(),
         ),
       ).rejects.toThrow('Missing Zentropi API credentials');
     });
@@ -168,8 +186,9 @@ describe('zentropiUtils', () => {
           makeCredentialGetter(),
           makeInput({ subcategory: undefined }),
           fetchScores,
+          makeOpenAICompatibleFetcher(),
         ),
-      ).rejects.toThrow('Missing labeler_version_id in subcategory');
+      ).rejects.toThrow('Missing criteria in subcategory');
     });
 
     it('passes labelerVersionId from subcategory to fetcher', async () => {
@@ -182,6 +201,7 @@ describe('zentropiUtils', () => {
         makeCredentialGetter(),
         makeInput({ subcategory: 'lv_custom_123' }),
         fetchScores,
+        makeOpenAICompatibleFetcher(),
       );
 
       expect(fetchScores).toHaveBeenCalledWith({

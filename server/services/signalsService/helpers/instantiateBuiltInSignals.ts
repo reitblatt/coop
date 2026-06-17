@@ -59,6 +59,7 @@ export function instantiateBuiltInSignals(
     openAiModerationFetcher: getOpenAiScores,
     openAiWhisperTranscriptionFetcher: getOpenAiTranscription,
     zentropiFetcher: getZentropiScores,
+    openAICompatibleFetcher: getOpenAICompatibleScore,
   } = cachedFetchers;
 
   return {
@@ -149,6 +150,7 @@ export function instantiateBuiltInSignals(
     [SignalType.ZENTROPI_LABELER]: new ZentropiLabelerSignal(
       credentialGetters.ZENTROPI,
       getZentropiScores,
+      getOpenAICompatibleScore,
     ),
     // Satisfies check to make sure we didn't forget any signals.
   } satisfies { [K in BuiltInSignalType]: SignalBase<SignalInputType> };

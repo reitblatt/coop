@@ -4,6 +4,7 @@ import { type CachedGetCredentials } from '../../../../signalAuthService/signalA
 import { Integration } from '../../../types/Integration.js';
 import { SignalType } from '../../../types/SignalType.js';
 import { type SignalInput } from '../../SignalBase.js';
+import { type FetchOpenAICompatibleScore } from '../openai_compatible/openaiCompatibleUtils.js';
 import ZentropiLabelerSignal from './ZentropiLabelerSignal.js';
 import {
   type FetchZentropiScores,
@@ -38,9 +39,22 @@ function makeInput(
   } as unknown as StringSignalInput;
 }
 
+function makeOpenAICompatibleFetcher(): FetchOpenAICompatibleScore {
+  return Object.assign(
+    jest
+      .fn()
+      .mockResolvedValue({ score: 0 }) as unknown as FetchOpenAICompatibleScore,
+    { close: jest.fn().mockResolvedValue(undefined) },
+  );
+}
+
 describe('ZentropiLabelerSignal', () => {
   it('has correct signal metadata', () => {
-    const signal = new ZentropiLabelerSignal(makeCredentialGetter(), jest.fn());
+    const signal = new ZentropiLabelerSignal(
+      makeCredentialGetter(),
+      jest.fn(),
+      makeOpenAICompatibleFetcher(),
+    );
 
     expect(signal.id).toEqual({ type: SignalType.ZENTROPI_LABELER });
     expect(signal.displayName).toBe('Zentropi Labeler');
@@ -59,6 +73,7 @@ describe('ZentropiLabelerSignal', () => {
     const signal = new ZentropiLabelerSignal(
       makeCredentialGetter(null),
       jest.fn(),
+      makeOpenAICompatibleFetcher(),
     );
 
     const info = await signal.getDisabledInfo('org-1');
@@ -70,6 +85,7 @@ describe('ZentropiLabelerSignal', () => {
     const signal = new ZentropiLabelerSignal(
       makeCredentialGetter('key'),
       jest.fn(),
+      makeOpenAICompatibleFetcher(),
     );
 
     const info = await signal.getDisabledInfo('org-1');
@@ -85,6 +101,7 @@ describe('ZentropiLabelerSignal', () => {
     const signal = new ZentropiLabelerSignal(
       makeCredentialGetter(),
       fetchScores,
+      makeOpenAICompatibleFetcher(),
     );
 
     const result = await signal.run(makeInput());
