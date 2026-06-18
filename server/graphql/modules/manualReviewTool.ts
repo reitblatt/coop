@@ -963,7 +963,7 @@ const typeDefs = /* GraphQL */ `
     updateManualReviewQueue(
       input: UpdateManualReviewQueueInput!
     ): UpdateManualReviewQueueQueueResponse!
-    deleteManualReviewQueue(id: ID!): Boolean!
+    deleteManualReviewQueue(id: ID!, destinationQueueId: ID): Boolean!
     addAccessibleQueuesToUser(
       input: AddAccessibleQueuesToUserInput!
     ): AddAccessibleQueuesToUserResponse!
@@ -2403,6 +2403,7 @@ const Mutation: GQLMutationResolvers = {
     return context.services.ManualReviewToolService.deleteManualReviewQueue(
       user.orgId,
       params.id,
+      params.destinationQueueId ?? undefined,
     );
   },
   async addAccessibleQueuesToUser(_, params, context) {

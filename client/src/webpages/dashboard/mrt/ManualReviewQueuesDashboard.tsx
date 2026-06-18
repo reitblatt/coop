@@ -6,6 +6,7 @@ import { gql } from '@apollo/client';
 import Button from 'antd/lib/button';
 import Checkbox from 'antd/lib/checkbox';
 import Input from 'antd/lib/input';
+import Select from 'antd/lib/select';
 import {
   Fragment,
   useCallback,
@@ -80,8 +81,8 @@ gql`
     }
   }
 
-  mutation DeleteManualReviewQueue($id: ID!) {
-    deleteManualReviewQueue(id: $id)
+  mutation DeleteManualReviewQueue($id: ID!, $destinationQueueId: ID) {
+    deleteManualReviewQueue(id: $id, destinationQueueId: $destinationQueueId)
   }
 
   mutation DeleteAllJobsFromQueue($queueId: ID!) {
@@ -318,6 +319,19 @@ export default function ManualReviewQueuesDashboard() {
   const previewJobsViewEnabled = data?.myOrg?.previewJobsViewEnabled ?? false;
   const navigate = useNavigate();
   const [modalInfo, setModalInfo] = useState<DeleteRowModalInfo | null>(null);
+  // null = "Discard all jobs"; a queue ID = move pending jobs there first.
+  const [deleteDestinationQueueId, setDeleteDestinationQueueId] = useState<
+    string | null
+  >(null);
+  // Pre-select the default queue whenever a new delete modal opens.
+  useEffect(() => {
+    if (modalInfo?.visible) {
+      const defaultQueue = queues?.find(
+        (q) => q.isDefaultQueue && q.id !== modalInfo.id,
+      );
+      setDeleteDestinationQueueId(defaultQueue?.id ?? null);
+    }
+  }, [modalInfo?.id, modalInfo?.visible, queues]);
   const [deleteAllJobsModalInfo, setDeleteAllJobsModalInfo] =
     useState<DeleteAllJobsModalInfo | null>(null);
   const [deleteAllJobsConfirmText, setDeleteAllJobsConfirmText] = useState('');
@@ -434,12 +448,19 @@ export default function ManualReviewQueuesDashboard() {
     </CoopModal>
   );
 
+  const queueToDelete =
+    modalInfo != null ? queues?.find((q) => q.id === modalInfo.id) : null;
+  const pendingJobCount = queueToDelete?.pendingJobCount ?? 0;
+  const destinationOptions = (queues ?? []).filter(
+    (q) => !q.isAppealsQueue && q.id !== modalInfo?.id,
+  );
+
   const deleteModal = (
     <CoopModal
       title={
-        queues == null || modalInfo == null
+        queueToDelete == null
           ? 'Delete Queue'
-          : `Delete '${queues.find((it) => it.id === modalInfo.id)!.name}'`
+          : `Delete '${queueToDelete.name}'`
       }
       visible={modalInfo?.visible ?? false}
       footer={[
@@ -451,7 +472,10 @@ export default function ManualReviewQueuesDashboard() {
         {
           title: 'Delete',
           onClick: () => {
-            onDeleteReviewQueue(modalInfo!.id);
+            onDeleteReviewQueue(
+              modalInfo!.id,
+              deleteDestinationQueueId ?? undefined,
+            );
             setModalInfo(null);
           },
           type: 'primary',
@@ -459,8 +483,41 @@ export default function ManualReviewQueuesDashboard() {
       ]}
       onClose={onCancel}
     >
-      Are you sure you want to delete this queue? This will delete all jobs
-      inside of this queue as well. You can't undo this action.
+      {pendingJobCount > 0 ? (
+        <div className="space-y-3">
+          <p>
+            This queue has{' '}
+            <strong>
+              {pendingJobCount} pending job{pendingJobCount !== 1 ? 's' : ''}
+            </strong>
+            . Choose what to do with them before deleting:
+          </p>
+          <Select
+            className="w-full"
+            value={deleteDestinationQueueId ?? '__discard__'}
+            onChange={(value: string) =>
+              setDeleteDestinationQueueId(
+                value === '__discard__' ? null : value,
+              )
+            }
+            options={[
+              { value: '__discard__', label: 'Discard all jobs' },
+              ...destinationOptions.map((q) => ({
+                value: q.id,
+                label: q.isDefaultQueue ? `${q.name} (default)` : q.name,
+              })),
+            ]}
+          />
+          <p className="text-gray-500 text-sm">
+            Any jobs currently being reviewed will be interrupted regardless.
+          </p>
+        </div>
+      ) : (
+        <p>
+          Are you sure you want to delete this queue? You can&apos;t undo this
+          action.
+        </p>
+      )}
     </CoopModal>
   );
 
@@ -499,9 +556,9 @@ export default function ManualReviewQueuesDashboard() {
     </CoopModal>
   );
 
-  const onDeleteReviewQueue = (id: string) => {
+  const onDeleteReviewQueue = (id: string, destinationQueueId?: string) => {
     deleteReviewQueue({
-      variables: { id },
+      variables: { id, destinationQueueId },
     });
   };
   const onAddFavoriteQueue = useCallback(
@@ -678,7 +735,7 @@ export default function ManualReviewQueuesDashboard() {
                         userHasPermissions(data.me?.permissions, [
                           GQLUserPermission.EditMrtQueues,
                         ]) &&
-                        true &&
+                        rulesForQueue.length === 0 &&
                         !isDefaultQueue
                       }
                       deleteDisabledTooltipTitle={

@@ -2722,6 +2722,7 @@ export type GQLMutationDeleteManualReviewJobCommentArgs = {
 };
 
 export type GQLMutationDeleteManualReviewQueueArgs = {
+  destinationQueueId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
 };
 

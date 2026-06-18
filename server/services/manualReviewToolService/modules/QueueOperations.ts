@@ -381,12 +381,41 @@ export default class QueueOperations {
    * exists and is successfully deleted, false when the queue
    * did not exist and throws when the delete fails for some reason
    */
-  async deleteManualReviewQueue(orgId: string, queueId: string) {
+  async deleteManualReviewQueue(
+    orgId: string,
+    queueId: string,
+    destinationQueueId?: string,
+  ) {
     const defaultQueueId = await this.getDefaultQueueIdForOrg(orgId);
     if (queueId === defaultQueueId) {
       throw makeUnableToDeleteDefaultQueueError({ shouldErrorSpan: true });
     }
     const queue = await this.getOrCreateBullQueue({ orgId, queueId });
+
+    if (destinationQueueId != null && destinationQueueId !== queueId) {
+      // Move waiting and delayed jobs to the destination queue before
+      // obliterating the source. Active jobs (currently open in a reviewer's
+      // session) are interrupted by obliterate — acceptable since the queue is
+      // going away. BullMQ deduplicates by jobId, so items already in the
+      // destination queue are silently skipped.
+      const destQueue = await this.getOrCreateBullQueue({
+        orgId,
+        queueId: destinationQueueId,
+      });
+      const jobsToMove = await queue.getJobs(['waiting', 'delayed']);
+      const limit = pLimit(10);
+      await Promise.all(
+        jobsToMove.map(async (job) =>
+          limit(async () =>
+            destQueue.add(
+              job.name,
+              { ...job.data, reenqueuedFrom: { queueId, jobId: job.data.id } },
+              { jobId: job.name, removeOnComplete: true },
+            ),
+          ),
+        ),
+      );
+    }
 
     await queue.obliterate({ force: true });
 
