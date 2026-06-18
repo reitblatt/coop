@@ -678,7 +678,7 @@ export default function ManualReviewQueuesDashboard() {
                         userHasPermissions(data.me?.permissions, [
                           GQLUserPermission.EditMrtQueues,
                         ]) &&
-                        true &&
+                        rulesForQueue.length === 0 &&
                         !isDefaultQueue
                       }
                       deleteDisabledTooltipTitle={
