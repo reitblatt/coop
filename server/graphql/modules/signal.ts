@@ -270,13 +270,36 @@ const Signal: GQLSignalResolvers = {
           'ZENTROPI',
         );
         if (config?.name === 'ZENTROPI') {
-          // Self-hosted mode: criteria text is entered free-form in the rule builder.
-          // Return a sentinel that tells the UI to show a free-text textarea.
+          // Self-hosted mode: offer existing org policies as selectable options
+          // plus a free-text sentinel for custom criteria.
           if (config.apiCredential.selfHosted != null) {
+            const policies =
+              await context.services.ModerationConfigService.getPolicies({
+                orgId: user.orgId,
+                readFromReplica: true,
+              });
+            // Only surface policies that have usable text after stripping HTML —
+            // policies with empty or HTML-only text would cause a
+            // SignalPermanentError at run time.
+            const policyOptions = policies
+              .filter((p) => {
+                if (!p.policyText) return false;
+                const stripped = p.policyText
+                  .replace(/<[^>]+>/g, ' ')
+                  .replace(/\s+/g, ' ')
+                  .trim();
+                return stripped.length > 0;
+              })
+              .map((p) => ({
+                id: `policy:${p.id}`,
+                label: p.name,
+                childrenIds: [],
+              }));
             return [
+              ...policyOptions,
               {
                 id: '__free_text__',
-                label: 'Enter policy criteria',
+                label: 'Enter custom criteria',
                 childrenIds: [],
               },
             ];

@@ -9,6 +9,7 @@ import {
   getZentropiScores,
   runZentropiLabelerImpl,
   type FetchZentropiScores,
+  type GetPolicyText,
   type ZentropiResponse,
 } from './zentropiUtils.js';
 
@@ -49,6 +50,10 @@ function makeOpenAICompatibleFetcher(): FetchOpenAICompatibleScore {
   );
 }
 
+function makeGetPolicyText(text: string | null = null): GetPolicyText {
+  return jest.fn().mockResolvedValue(text);
+}
+
 describe('zentropiUtils', () => {
   describe('score mapping', () => {
     it('maps label=1, high confidence to high score (violating)', async () => {
@@ -62,6 +67,7 @@ describe('zentropiUtils', () => {
         makeInput(),
         fetchScores,
         makeOpenAICompatibleFetcher(),
+        makeGetPolicyText(),
       );
 
       expect(result.score).toBe(0.95);
@@ -78,6 +84,7 @@ describe('zentropiUtils', () => {
         makeInput(),
         fetchScores,
         makeOpenAICompatibleFetcher(),
+        makeGetPolicyText(),
       );
 
       expect(result.score).toBeCloseTo(0.05);
@@ -94,6 +101,7 @@ describe('zentropiUtils', () => {
         makeInput(),
         fetchScores,
         makeOpenAICompatibleFetcher(),
+        makeGetPolicyText(),
       );
 
       expect(result.score).toBeCloseTo(0.4);
@@ -110,6 +118,7 @@ describe('zentropiUtils', () => {
         makeInput(),
         fetchScores,
         makeOpenAICompatibleFetcher(),
+        makeGetPolicyText(),
       );
 
       expect(result.score).toBe(0.6);
@@ -126,6 +135,7 @@ describe('zentropiUtils', () => {
         makeInput(),
         fetchScores,
         makeOpenAICompatibleFetcher(),
+        makeGetPolicyText(),
       );
 
       expect(result.score).toBe(0.95);
@@ -142,6 +152,7 @@ describe('zentropiUtils', () => {
         makeInput(),
         fetchScores,
         makeOpenAICompatibleFetcher(),
+        makeGetPolicyText(),
       );
 
       expect(result.score).toBeCloseTo(0.05);
@@ -158,6 +169,7 @@ describe('zentropiUtils', () => {
         makeInput(),
         fetchScores,
         makeOpenAICompatibleFetcher(),
+        makeGetPolicyText(),
       );
 
       expect(result.outputType).toEqual({ scalarType: ScalarTypes.NUMBER });
@@ -174,6 +186,7 @@ describe('zentropiUtils', () => {
           makeInput(),
           fetchScores,
           makeOpenAICompatibleFetcher(),
+          makeGetPolicyText(),
         ),
       ).rejects.toThrow('Missing Zentropi API credentials');
     });
@@ -187,6 +200,7 @@ describe('zentropiUtils', () => {
           makeInput({ subcategory: undefined }),
           fetchScores,
           makeOpenAICompatibleFetcher(),
+          makeGetPolicyText(),
         ),
       ).rejects.toThrow('Missing criteria in subcategory');
     });
@@ -202,6 +216,7 @@ describe('zentropiUtils', () => {
         makeInput({ subcategory: 'lv_custom_123' }),
         fetchScores,
         makeOpenAICompatibleFetcher(),
+        makeGetPolicyText(),
       );
 
       expect(fetchScores).toHaveBeenCalledWith({
@@ -209,6 +224,78 @@ describe('zentropiUtils', () => {
         apiKey: 'test-api-key',
         labelerVersionId: 'lv_custom_123',
       });
+    });
+
+    it('resolves policy:id to policy text for hosted mode', async () => {
+      const fetchScores: FetchZentropiScores = jest.fn().mockResolvedValue({
+        label: 1,
+        confidence: 0.9,
+      } satisfies ZentropiResponse);
+
+      await runZentropiLabelerImpl(
+        makeCredentialGetter(),
+        makeInput({ subcategory: 'policy:abc123' }),
+        fetchScores,
+        makeOpenAICompatibleFetcher(),
+        makeGetPolicyText('No hate speech allowed'),
+      );
+
+      expect(fetchScores).toHaveBeenCalledWith({
+        text: 'test content',
+        apiKey: 'test-api-key',
+        labelerVersionId: 'No hate speech allowed',
+      });
+    });
+
+    it('throws SignalPermanentError when policy has no text', async () => {
+      const fetchScores: FetchZentropiScores = jest.fn();
+
+      await expect(
+        runZentropiLabelerImpl(
+          makeCredentialGetter(),
+          makeInput({ subcategory: 'policy:missing' }),
+          fetchScores,
+          makeOpenAICompatibleFetcher(),
+          makeGetPolicyText(null),
+        ),
+      ).rejects.toThrow('not found or has no policy text');
+    });
+
+    it('strips HTML from policy text before sending', async () => {
+      const fetchScores: FetchZentropiScores = jest.fn().mockResolvedValue({
+        label: 0,
+        confidence: 0.8,
+      } satisfies ZentropiResponse);
+
+      await runZentropiLabelerImpl(
+        makeCredentialGetter(),
+        makeInput({ subcategory: 'policy:abc123' }),
+        fetchScores,
+        makeOpenAICompatibleFetcher(),
+        makeGetPolicyText('<p>No <strong>hate speech</strong> allowed.</p>'),
+      );
+
+      expect(fetchScores).toHaveBeenCalledWith({
+        text: 'test content',
+        apiKey: 'test-api-key',
+        labelerVersionId: 'No hate speech allowed.',
+      });
+    });
+
+    it('throws SignalPermanentError when policy text is HTML-only (e.g. tiptap empty state)', async () => {
+      const fetchScores: FetchZentropiScores = jest.fn();
+
+      await expect(
+        runZentropiLabelerImpl(
+          makeCredentialGetter(),
+          makeInput({ subcategory: 'policy:abc123' }),
+          fetchScores,
+          makeOpenAICompatibleFetcher(),
+          makeGetPolicyText('<p></p>'),
+        ),
+      ).rejects.toThrow(
+        'has no usable criteria text after removing HTML formatting',
+      );
     });
   });
 
