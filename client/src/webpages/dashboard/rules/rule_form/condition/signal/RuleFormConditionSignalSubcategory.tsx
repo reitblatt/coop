@@ -20,19 +20,37 @@ export default function RuleFormConditionSignalSubcategory(props: {
   }
   const { conditionIndex, conditionSetIndex } = location;
 
-  const isFreeText =
-    eligibleSubcategories.length === 1 &&
-    eligibleSubcategories[0].id === '__free_text__';
+  const hasFreeTextSentinel = eligibleSubcategories.some(
+    (s) => s.id === '__free_text__',
+  );
+  const hasPolicyOptions = eligibleSubcategories.some((s) =>
+    s.id.startsWith('policy:'),
+  );
+  const isSelfHosted = hasFreeTextSentinel;
 
-  const displayValue = signal.subcategory
-    ? isFreeText
-      ? signal.subcategory.length > 40
-        ? signal.subcategory.slice(0, 40) + '…'
-        : signal.subcategory
-      : signal.subcategory
-    : isFreeText
-      ? 'Enter Criteria'
-      : 'Select Subcategory';
+  // Look up the label for the stored subcategory ID (e.g. policy name).
+  const matchingOption = signal.subcategory
+    ? eligibleSubcategories.find((s) => s.id === signal.subcategory)
+    : undefined;
+
+  let displayValue: string;
+  let tooltipText: string | undefined;
+
+  if (!signal.subcategory) {
+    displayValue = hasPolicyOptions
+      ? 'Select Policy or Criteria'
+      : 'Enter Criteria';
+  } else if (matchingOption) {
+    // Subcategory is a known option (e.g. a policy) — show its label.
+    displayValue = matchingOption.label;
+  } else {
+    // Subcategory is raw free text — truncate for display, full text as tooltip.
+    const text = signal.subcategory;
+    displayValue = text.length > 40 ? text.slice(0, 40) + '…' : text;
+    tooltipText = text;
+  }
+
+  const label = isSelfHosted ? 'Policy Criteria' : 'Signal Subcategory';
 
   return (
     <div
@@ -44,9 +62,7 @@ export default function RuleFormConditionSignalSubcategory(props: {
       }
       className="!mb-0 !pl-4 !align-middle flex flex-col items-start"
     >
-      <div className="pb-1 text-xs font-bold">
-        {isFreeText ? 'Policy Criteria' : 'Signal Subcategory'}
-      </div>
+      <div className="pb-1 text-xs font-bold">{label}</div>
       <Button
         className={`px-3 cursor-text ${
           condition.signal
@@ -54,16 +70,12 @@ export default function RuleFormConditionSignalSubcategory(props: {
             : '!text-[#bfbfbf] !hover:text-[#bfbfbf] !focus:text-[#bfbfbf]'
         }`}
         onClick={onClick}
-        title={
-          isFreeText && signal.subcategory ? signal.subcategory : undefined
-        }
+        title={tooltipText}
       >
         {displayValue}{' '}
         <DownOutlined className="!text-xs !text-[#bfbfbf] !hover:text-[#bfbfbf]" />
       </Button>
-      <div className="invisible pb-1 text-xs font-bold">
-        {isFreeText ? 'Policy Criteria' : 'Signal Subcategory'}
-      </div>
+      <div className="invisible pb-1 text-xs font-bold">{label}</div>
     </div>
   );
 }

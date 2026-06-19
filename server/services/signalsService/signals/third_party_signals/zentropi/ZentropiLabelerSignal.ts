@@ -9,6 +9,7 @@ import { type FetchOpenAICompatibleScore } from '../openai_compatible/openaiComp
 import {
   runZentropiLabelerImpl,
   type FetchZentropiScores,
+  type GetPolicyText,
 } from './zentropiUtils.js';
 
 export default class ZentropiLabelerSignal extends SignalBase<
@@ -19,6 +20,7 @@ export default class ZentropiLabelerSignal extends SignalBase<
     protected readonly getZentropiCredentials: CachedGetCredentials<'ZENTROPI'>,
     protected readonly getZentropiScores: FetchZentropiScores,
     protected readonly fetchOpenAICompatibleScore: FetchOpenAICompatibleScore,
+    protected readonly getPolicyText: GetPolicyText,
   ) {
     super();
   }
@@ -115,6 +117,7 @@ export default class ZentropiLabelerSignal extends SignalBase<
       input,
       this.getZentropiScores,
       this.fetchOpenAICompatibleScore,
+      this.getPolicyText,
     );
   }
 }

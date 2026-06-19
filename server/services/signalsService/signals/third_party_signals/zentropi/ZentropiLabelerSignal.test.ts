@@ -8,6 +8,7 @@ import { type FetchOpenAICompatibleScore } from '../openai_compatible/openaiComp
 import ZentropiLabelerSignal from './ZentropiLabelerSignal.js';
 import {
   type FetchZentropiScores,
+  type GetPolicyText,
   type ZentropiResponse,
 } from './zentropiUtils.js';
 
@@ -48,12 +49,17 @@ function makeOpenAICompatibleFetcher(): FetchOpenAICompatibleScore {
   );
 }
 
+function makeGetPolicyText(): GetPolicyText {
+  return jest.fn().mockResolvedValue(null);
+}
+
 describe('ZentropiLabelerSignal', () => {
   it('has correct signal metadata', () => {
     const signal = new ZentropiLabelerSignal(
       makeCredentialGetter(),
       jest.fn(),
       makeOpenAICompatibleFetcher(),
+      makeGetPolicyText(),
     );
 
     expect(signal.id).toEqual({ type: SignalType.ZENTROPI_LABELER });
@@ -74,6 +80,7 @@ describe('ZentropiLabelerSignal', () => {
       makeCredentialGetter(null),
       jest.fn(),
       makeOpenAICompatibleFetcher(),
+      makeGetPolicyText(),
     );
 
     const info = await signal.getDisabledInfo('org-1');
@@ -86,6 +93,7 @@ describe('ZentropiLabelerSignal', () => {
       makeCredentialGetter('key'),
       jest.fn(),
       makeOpenAICompatibleFetcher(),
+      makeGetPolicyText(),
     );
 
     const info = await signal.getDisabledInfo('org-1');
@@ -102,6 +110,7 @@ describe('ZentropiLabelerSignal', () => {
       makeCredentialGetter(),
       fetchScores,
       makeOpenAICompatibleFetcher(),
+      makeGetPolicyText(),
     );
 
     const result = await signal.run(makeInput());
