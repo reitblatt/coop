@@ -167,6 +167,7 @@ export default class QueueOperations {
     private readonly pgQueryReadReplica: Kysely<ManualReviewToolServicePg>,
     private readonly moderationConfigService: Dependencies['ModerationConfigService'],
     redis: RedisConnection,
+    private readonly tracer: Dependencies['Tracer'],
   ) {
     this.transactionWithRetry = makeKyselyTransactionWithRetry(this.pgQuery);
     // Reassingment here is a hack to work around TS syntax limitations
@@ -506,7 +507,18 @@ export default class QueueOperations {
     }
 
     if (numDeletedRows === 1n) {
-      await queue.obliterate({ force: true });
+      try {
+        await queue.obliterate({ force: true });
+      } catch (e) {
+        // The DB row is already gone at this point, so a retry would see
+        // numDeletedRows === 0n and skip obliterate() entirely, silently
+        // leaving orphaned Bull/Redis data behind. Best-effort cleanup:
+        // surface the failure to the active tracing span (mirrors the
+        // pattern used elsewhere, e.g. `UserApi.logout`) so ops can run
+        // `server/bin/recover-mrt-queue.ts`, but still report success since
+        // the DB delete itself succeeded.
+        this.tracer.logActiveSpanFailedIfAny(e);
+      }
     }
 
     return numDeletedRows === 1n;
