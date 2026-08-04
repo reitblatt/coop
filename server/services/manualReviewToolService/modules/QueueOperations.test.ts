@@ -2,14 +2,13 @@ import fc from 'fast-check';
 import { uid } from 'uid';
 import { v1 as uuidv1 } from 'uuid';
 
-import getBottle from '../../../iocContainer/index.js';
 import createActions from '../../../test/fixtureHelpers/createActions.js';
 import createContentItemTypes from '../../../test/fixtureHelpers/createContentItemTypes.js';
 import createMrtQueue from '../../../test/fixtureHelpers/createMrtQueue.js';
 import createOrg from '../../../test/fixtureHelpers/createOrg.js';
 import createUser from '../../../test/fixtureHelpers/createUser.js';
+import makeDummyMrtJobPayload from '../../../test/fixtureHelpers/makeDummyMrtJobPayload.js';
 import { makeTransactionalTestWithFixture } from '../../../test/harness/transactionalTest.js';
-import { makeTestWithFixture } from '../../../test/utils.js';
 import { UserPermission } from '../../userManagementService/index.js';
 import {
   bullJobIdtoExternalJobId,
@@ -35,48 +34,42 @@ describe('QueueOperations', () => {
   });
 
   const testWithQueueAndActions = () =>
-    makeTestWithFixture(async () => {
-      const container = (await getBottle()).container;
-
-      const { org, cleanup: orgCleanup } = await createOrg(
+    makeTransactionalTestWithFixture(async ({ deps }) => {
+      const { org } = await createOrg(
         {
-          KyselyPg: container.KyselyPg,
-          ModerationConfigService: container.ModerationConfigService,
-          ApiKeyService: container.ApiKeyService,
+          KyselyPg: deps.KyselyPg,
+          ModerationConfigService: deps.ModerationConfigService,
+          ApiKeyService: deps.ApiKeyService,
         },
         uid(),
       );
 
-      const { user, cleanup: userCleanup } = await createUser(
-        container.KyselyPg,
-        org.id,
-      );
-      const { itemTypes, cleanup: itemTypesCleanup } =
-        await createContentItemTypes({
-          moderationConfigService: container.ModerationConfigService,
-          orgId: org.id,
-          extra: {
-            fields: [
-              {
-                name: 'someField',
-                type: 'NUMBER',
-                required: false,
-                container: null,
-              },
-            ],
-          },
-        });
+      const { user } = await createUser(deps.KyselyPg, org.id);
+      const { itemTypes } = await createContentItemTypes({
+        moderationConfigService: deps.ModerationConfigService,
+        orgId: org.id,
+        extra: {
+          fields: [
+            {
+              name: 'someField',
+              type: 'NUMBER',
+              required: false,
+              container: null,
+            },
+          ],
+        },
+      });
 
-      const { actions, cleanup: actionsCleanup } = await createActions({
-        actionAPI: container.ActionAPIDataSource,
+      const { actions } = await createActions({
+        actionAPI: deps.ActionAPIDataSource,
         itemTypeIds: itemTypes.map((it) => it.id),
         orgId: org.id,
         numActions: 3,
       });
 
-      const { queue, cleanup: queuesCleanup } = await createMrtQueue({
+      const { queue } = await createMrtQueue({
         orgId: org.id,
-        mrtService: container.ManualReviewToolService,
+        mrtService: deps.ManualReviewToolService,
         userId: user.id,
       });
 
@@ -85,17 +78,8 @@ describe('QueueOperations', () => {
         user,
         actions,
         queue,
-        kyselyPg: container.KyselyPg,
-        mrtService: container.ManualReviewToolService,
-        cleanup: async () => {
-          await queuesCleanup();
-          await actionsCleanup();
-          await itemTypesCleanup();
-          await userCleanup();
-          await orgCleanup();
-          await container.KyselyPg.destroy();
-          await container.KyselyPgReadReplica.destroy();
-        },
+        kyselyPg: deps.KyselyPg,
+        mrtService: deps.ManualReviewToolService,
       };
     });
 
@@ -220,6 +204,44 @@ describe('QueueOperations', () => {
           userPermissions: [UserPermission.EDIT_MRT_QUEUES],
         }),
       ).rejects.toMatchObject({ name: 'DeleteAllJobsUnauthorizedError' });
+    },
+  );
+
+  // Regression: this used to read the queue with getJobs([state], 0, 0),
+  // which defaults to descending order and returns the *newest* job — the
+  // dashboard's "Oldest Task Age" column showed the newest task's age.
+  testWithQueueAndActions()(
+    'getOldestJobCreatedAt returns the oldest waiting job, not the newest',
+    async ({ org, queue, mrtService }) => {
+      const olderCreatedAt = new Date(Date.now() - 2 * 60 * 60 * 1000);
+      const newerCreatedAt = new Date(Date.now() - 60 * 1000);
+
+      // Enqueue the older job first: BullMQ pushes new jobs onto the head of
+      // the wait list, so a descending read returns the most recently added
+      // job and this test fails without the oldest-first fix.
+      await mrtService['queueOps']['addJob']({
+        orgId: org.id,
+        queueId: queue.id,
+        enqueueSourceInfo: { kind: 'REPORT' },
+        jobPayload: makeDummyMrtJobPayload({ createdAt: olderCreatedAt }),
+      });
+      await mrtService['queueOps']['addJob']({
+        orgId: org.id,
+        queueId: queue.id,
+        enqueueSourceInfo: { kind: 'REPORT' },
+        jobPayload: makeDummyMrtJobPayload({ createdAt: newerCreatedAt }),
+      });
+
+      const oldest = await mrtService.getOldestJobCreatedAt({
+        orgId: org.id,
+        queueId: queue.id,
+        isAppealsQueue: false,
+      });
+
+      expect(oldest).not.toBeNull();
+      // BullMQ round-trips job data through JSON, so createdAt may come back
+      // as an ISO string; compare by timestamp.
+      expect(new Date(oldest!).getTime()).toEqual(olderCreatedAt.getTime());
     },
   );
 

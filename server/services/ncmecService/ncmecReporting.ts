@@ -1348,10 +1348,7 @@ export type NcmecMessagesReport = {
 };
 
 type NcmecReportResult =
-  | 'ALL_MEDIA_MISSING'
-  | 'SUCCESS'
-  | 'UNSUPPORTED_ORG'
-  | 'FAILURE';
+  'ALL_MEDIA_MISSING' | 'SUCCESS' | 'UNSUPPORTED_ORG' | 'FAILURE';
 
 const actionsOnReportCreationAndPoliciesSelection = [
   'actions_to_run_upon_report_creation as actionsToRunIds',
@@ -1394,8 +1391,7 @@ export default class NcmecReporting {
       .where('org_id', '=', orgId)
       .executeTakeFirst();
     return row as
-      | NcmecReportingServicePg['ncmec_reporting.ncmec_org_settings']
-      | undefined;
+      NcmecReportingServicePg['ncmec_reporting.ncmec_org_settings'] | undefined;
   }
 
   async getNCMECActionsToRunAndPolicies(
@@ -1799,29 +1795,10 @@ export default class NcmecReporting {
         // failure, since we can't guarantee all traces with exceptions are
         // sampled in DD
         try {
-          // These are test accounts that we send to prospective users, and
-          // they should be able to click "Send to NCMEC" in the UI, but no
-          // NCMEC report should actually be created.
-          const testOrgs = ['4def6a77d6a', 'acc701627cb'];
-
           if (!(await this.hasNCMECReportingEnabled(reportParams.orgId))) {
             throw new Error(
               `NCMEC reports are not enabled for org ${reportParams.orgId}`,
             );
-          }
-
-          if (testOrgs.includes(reportParams.orgId)) {
-            if (reportParams.jobId !== undefined) {
-              await this.#recordSubmissionError({
-                jobId: reportParams.jobId,
-                userId: reportParams.reportedUser.id,
-                userTypeId: reportParams.reportedUser.typeId,
-                status: 'PERMANENT_ERROR',
-                error:
-                  'Org is on the NCMEC test allowlist; reports are suppressed.',
-              });
-            }
-            return 'UNSUPPORTED_ORG';
           }
 
           if (reportParams.media.length === 0) {
