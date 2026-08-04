@@ -11,6 +11,7 @@ import ItemAction from '@/components/ItemAction';
 import {
   GQLItemHistoryResult,
   GQLItemType,
+  GQLSchemaFieldRoles,
   GQLThreadItem,
   GQLUserItem,
   useGQLGetItemsWithIdLazyQuery,
@@ -401,14 +402,8 @@ export default function ItemInvestigation(props: {
     // shadowing it.
     const derivedIpAddress = (() => {
       try {
-        return getFieldValueForRole(
-          {
-            // The GraphQL result is an item-type union, but the generic helper
-            // requires one compatible schema-role type at this call site.
-             
-            type: item.type,
-            data: item.data,
-          },
+        return getFieldValueForRole<GQLSchemaFieldRoles, 'ipAddress'>(
+          { type: item.type, data: item.data },
           'ipAddress',
         );
       } catch {
