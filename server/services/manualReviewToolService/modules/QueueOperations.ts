@@ -472,12 +472,11 @@ export default class QueueOperations {
         return queueDelete.numDeletedRows;
       });
     } catch (e) {
+      const constraint = (e as { constraint?: string }).constraint;
       if (
         isForeignKeyViolationError(e) &&
-        ((e as { constraint?: string }).constraint ===
-          'routing_rules_destination_queue_id_fkey' ||
-          (e as { constraint?: string }).constraint ===
-            'appeals_routing_rules_destination_queue_id_fkey')
+        (constraint === 'routing_rules_destination_queue_id_fkey' ||
+          constraint === 'appeals_routing_rules_destination_queue_id_fkey')
       ) {
         // routing_rules and appeals_routing_rules have RESTRICT FKs to this
         // queue. Query for their names so the error message is actionable.
