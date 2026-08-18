@@ -57,8 +57,16 @@ export default defineConfig(({ mode }) => {
       // hostname than localhost (Coder workspace subdomains, ngrok, tailscale
       // funnel, etc). Opt-in via env var so plain `npm start`/local dev is
       // unaffected and this stays a no-op unless a proxying setup opts in.
+      // Set to `true` to allow all hosts, or a comma-separated list of
+      // hostnames to allow only those.
       allowedHosts:
-        process.env.VITE_DEV_ALLOWED_HOSTS === 'true' ? true : undefined,
+        process.env.VITE_DEV_ALLOWED_HOSTS === 'true'
+          ? true
+          : process.env.VITE_DEV_ALLOWED_HOSTS
+            ? process.env.VITE_DEV_ALLOWED_HOSTS.split(',').map((host) =>
+                host.trim(),
+              )
+            : undefined,
       proxy: {
         '/api': {
           target: 'http://localhost:8080',
