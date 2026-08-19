@@ -8,6 +8,11 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+const allowedHosts = (process.env.VITE_DEV_ALLOWED_HOSTS ?? '')
+  .split(',')
+  .map((host) => host.trim())
+  .filter((v) => !!v);
+
 export default defineConfig(({ mode }) => {
   const isProduction = mode === 'production';
   const reactCompilerConfig = {
@@ -57,16 +62,10 @@ export default defineConfig(({ mode }) => {
       // hostname than localhost (Coder workspace subdomains, ngrok, tailscale
       // funnel, etc). Opt-in via env var so plain `npm start`/local dev is
       // unaffected and this stays a no-op unless a proxying setup opts in.
-      // Set to `true` to allow all hosts, or a comma-separated list of
-      // hostnames to allow only those.
-      allowedHosts:
-        process.env.VITE_DEV_ALLOWED_HOSTS === 'true'
-          ? true
-          : process.env.VITE_DEV_ALLOWED_HOSTS
-            ? process.env.VITE_DEV_ALLOWED_HOSTS.split(',').map((host) =>
-                host.trim(),
-              )
-            : undefined,
+      // Set to a comma-separated list of hostnames if needed, using a leading
+      // dot to specify subdomain wildcards, e.g. '.example.com' to allow all
+      // subdomains of example.com
+      allowedHosts: allowedHosts.length > 0 ? allowedHosts : undefined,
       proxy: {
         '/api': {
           target: 'http://localhost:8080',
