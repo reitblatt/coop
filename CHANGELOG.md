@@ -51,7 +51,7 @@ For more information about each release including git tags and artifacts, see [R
 
 ### CI & infrastructure
 
-- Dependabot now tracks the `github-actions` ecosystem, and every action pin was bumped to its current release
+- Dependabot now tracks the `github-actions` ecosystem, and every action pin was bumped to its current release ([#1157](https://github.com/roostorg/coop/pull/1157)–[#1168](https://github.com/roostorg/coop/pull/1168) by [@reitblatt](https://github.com/reitblatt))
 
 ## [1.0.2] - 2026-06-30
 
