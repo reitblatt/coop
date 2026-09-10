@@ -46,5 +46,6 @@ build/
 ncmec-reports/
 .devops/backups/
 
-# poutine supply-chain scan report (see scripts/poutine-scan.sh)
+# poutine supply-chain scan reports (.github/workflows/poutine.yml)
 poutine.sarif
+poutine.txt
