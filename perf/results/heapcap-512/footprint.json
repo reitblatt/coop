@@ -1,0 +1,17 @@
+{
+  "rootNodeModulesMib": 120,
+  "serverNodeModulesMib": 389,
+  "clientNodeModulesMib": 700,
+  "dbNodeModulesMib": 93,
+  "migratorNodeModulesMib": 86,
+  "nodeModulesTotalMib": 1388,
+  "serverTranspiledMib": 9,
+  "clientBuildMib": 0,
+  "checkoutMib": 3388,
+  "serverPackages": 1330,
+  "clientPackages": 878,
+  "rootPackages": 326,
+  "imageServerMib": 590,
+  "imageServerBaseMib": 876,
+  "imageClientMib": 1091
+}

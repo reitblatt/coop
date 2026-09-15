@@ -1,0 +1,13 @@
+{
+  "runId": "baseline",
+  "startedAt": "2026-09-15T17:34:34.474Z",
+  "gitSha": "68ca750",
+  "gitDirty": true,
+  "host": {
+    "cpus": 8,
+    "availableParallelism": 8,
+    "memTotalGib": 14.9,
+    "node": "v24.20.0",
+    "platform": "linux 7.0.0-31-generic"
+  }
+}

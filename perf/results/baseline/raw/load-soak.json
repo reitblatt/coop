@@ -1,0 +1,27 @@
+{
+  "label": "soak",
+  "scenario": "mixed",
+  "concurrency": 25,
+  "durationS": 420.3,
+  "requests": 40277,
+  "requestsPerSecond": 95.8,
+  "itemsSubmitted": 60250,
+  "errors": 6,
+  "statusCounts": {
+    "200": 28191,
+    "202": 12034,
+    "401": 11,
+    "500": 35,
+    "200-gql-error": 46,
+    "err:ECONNRESET": 6
+  },
+  "responseBytes": 2910318,
+  "firstErrorBody": "{\"errors\":[{\"status\":401,\"type\":[\"/errors/authentication-failed-or-missing\"],\"title\":\"Invalid API Key\",\"detail\":\"Something went wrong finding or validating your API key. Make sure the proper key is provided in the x-api-key header.\",\"requestId\":\"api-key-validation:de9a7d60-b12c-11f1-becb-8b8f06194959\"}]}",
+  "latencyMs": {
+    "mean": 260.72,
+    "p50": 74.68,
+    "p90": 161.9,
+    "p99": 987.99,
+    "max": 106431.29
+  }
+}

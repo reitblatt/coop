@@ -1,0 +1,28 @@
+base: perf/results/leak-probe/raw/heap-idle.heapsnapshot (70.3 MiB)
+head: perf/results/leak-probe/raw/heap-post-soak.heapsnapshot (260.2 MiB)
+delta: 189.9 MiB
+
+bucket                                                   ΔMiB    Δcount   headMiB
+(array)                                                 46.13    320864     54.74
+(strings)                                               34.24    366546     65.70
+closure:                                                15.60    285587     16.12
+object:system / Context                                 15.18    253805     15.82
+object:Object                                           13.31    250466     15.39
+(hidden)                                                10.32    203258     12.64
+object:Generator                                         7.33     87366      7.51
+object:Array                                             6.16    201768      7.04
+object:Promise                                           6.15    134276      6.20
+object:ClientRequest                                     5.45     10664      5.45
+(code)                                                   5.12     12761     18.89
+object:Listener                                          1.30     21318      1.30
+closure:onAbort                                          1.30     21318      1.30
+object:Date                                              1.17     12802      1.17
+object:URLContext                                        1.06     10664      1.06
+object:AsyncResource                                     0.98     21388      0.98
+object:ServerResponse                                    0.86      2132      0.86
+(number)                                                 0.85     55651      0.86
+object:RawBuilderImpl                                   -0.00         0      0.00
+object:LazyQueryId                                      -0.00         0      0.00
+(bigint)                                                -0.00       -27      0.00
+closure:getProvider                                     -0.00       -20      0.00
+closure:getService                                      -0.00       -20      0.00

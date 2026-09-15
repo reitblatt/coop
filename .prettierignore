@@ -3,3 +3,5 @@ client/build/
 server/signals/text_matching/fuzzy_matching/homoglyphReplacements.*
 .dockerignore
 .github/pull_request_template.md
+# Generated measurement artifacts (see perf/README.md)
+perf/results/

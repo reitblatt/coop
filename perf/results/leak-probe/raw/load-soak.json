@@ -1,0 +1,23 @@
+{
+  "label": "soak",
+  "scenario": "mixed",
+  "concurrency": 25,
+  "durationS": 91,
+  "requests": 18060,
+  "requestsPerSecond": 198.4,
+  "itemsSubmitted": 26985,
+  "errors": 0,
+  "statusCounts": {
+    "200": 12663,
+    "202": 5397
+  },
+  "responseBytes": 1304289,
+  "firstErrorBody": null,
+  "latencyMs": {
+    "mean": 125.85,
+    "p50": 86,
+    "p90": 195.17,
+    "p99": 662.33,
+    "max": 6159.82
+  }
+}

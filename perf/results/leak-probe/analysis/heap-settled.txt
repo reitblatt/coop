@@ -1,0 +1,24 @@
+perf/results/leak-probe/raw/heap-settled.heapsnapshot
+  total shallow size: 76.8 MiB across 687047 nodes
+
+bucket                                                    MiB     count
+(strings)                                               31.62    154693
+(code)                                                  18.25    196555
+(array)                                                  9.30     48546
+(object shape)                                           3.99     45030
+(hidden)                                                 2.87     55041
+object:Object                                            2.11     51605
+(native)                                                 1.12      1399
+object:Token                                             1.06     12665
+object:Array                                             0.91     29625
+object:Location                                          0.81     13240
+object:system / Context                                  0.69     11809
+closure:                                                 0.62     10541
+object:Module                                            0.32      2313
+closure:get                                              0.19      3191
+object:Generator                                         0.18      2072
+object:ModuleJob                                         0.12      1092
+object:ModuleWrap                                        0.09      1097
+(regexp)                                                 0.07      1324
+closure:native_bind                                      0.07      1543
+object:TstNode                                           0.06       939

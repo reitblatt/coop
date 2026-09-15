@@ -1,0 +1,1069 @@
+{
+  "meta": {
+    "runId": "leak-probe",
+    "startedAt": "2026-09-15T17:50:16.582Z",
+    "gitSha": "68ca750",
+    "gitDirty": true,
+    "host": {
+      "cpus": 8,
+      "availableParallelism": 8,
+      "memTotalGib": 14.9,
+      "node": "v24.20.0",
+      "platform": "linux 7.0.0-31-generic"
+    }
+  },
+  "footprint": {
+    "rootNodeModulesMib": 120,
+    "serverNodeModulesMib": 389,
+    "clientNodeModulesMib": 700,
+    "dbNodeModulesMib": 93,
+    "migratorNodeModulesMib": 86,
+    "nodeModulesTotalMib": 1388,
+    "serverTranspiledMib": 9,
+    "clientBuildMib": 0,
+    "checkoutMib": 2497,
+    "serverPackages": 1330,
+    "clientPackages": 878,
+    "rootPackages": 326,
+    "imageServerMib": 590,
+    "imageServerBaseMib": 876,
+    "imageClientMib": 1091
+  },
+  "startup": {
+    "bootToReadyMs": 2762
+  },
+  "processes": {
+    "graphql": {
+      "durationS": 20.2,
+      "samples": 13,
+      "totalRssMib": {
+        "first": 680,
+        "last": 788.3,
+        "min": 680,
+        "max": 874.1,
+        "mean": 778.6,
+        "samples": 13
+      },
+      "totalRssSlopeMibPerMin": -11.78,
+      "processes": {
+        "api-server": {
+          "instances": 1,
+          "rssMib": {
+            "first": 407.7,
+            "last": 655,
+            "max": 655,
+            "mean": 591.8
+          },
+          "pssMib": 552,
+          "peakRssMib": 655,
+          "threadsMax": 11,
+          "fdsMax": 55,
+          "cpuSecondsUsed": 19.1,
+          "rssSlopeMibPerMin": 528.01
+        },
+        "worker": {
+          "instances": 1,
+          "rssMib": {
+            "first": 272.3,
+            "last": 133.3,
+            "max": 272.3,
+            "mean": 186.8
+          },
+          "pssMib": 146.9,
+          "peakRssMib": 272.4,
+          "threadsMax": 11,
+          "fdsMax": 27,
+          "cpuSecondsUsed": 0.2,
+          "rssSlopeMibPerMin": -539.78
+        }
+      }
+    },
+    "idle": {
+      "durationS": 60.7,
+      "samples": 37,
+      "totalRssMib": {
+        "first": 599.5,
+        "last": 599.8,
+        "min": 599.5,
+        "max": 599.8,
+        "mean": 599.7,
+        "samples": 37
+      },
+      "totalRssSlopeMibPerMin": 0.35,
+      "processes": {
+        "api-server": {
+          "instances": 1,
+          "rssMib": {
+            "first": 327.3,
+            "last": 327.5,
+            "max": 327.5,
+            "mean": 327.4
+          },
+          "pssMib": 291.9,
+          "peakRssMib": 327.5,
+          "threadsMax": 11,
+          "fdsMax": 26,
+          "cpuSecondsUsed": 0.2,
+          "rssSlopeMibPerMin": 0.29
+        },
+        "worker": {
+          "instances": 1,
+          "rssMib": {
+            "first": 272.2,
+            "last": 272.3,
+            "max": 272.3,
+            "mean": 272.3
+          },
+          "pssMib": 236.7,
+          "peakRssMib": 272.3,
+          "threadsMax": 11,
+          "fdsMax": 27,
+          "cpuSecondsUsed": 0.2,
+          "rssSlopeMibPerMin": 0.06
+        }
+      }
+    },
+    "ingest": {
+      "durationS": 20.5,
+      "samples": 13,
+      "totalRssMib": {
+        "first": 788.3,
+        "last": 1055.5,
+        "min": 788.3,
+        "max": 1099.4,
+        "mean": 971.2,
+        "samples": 13
+      },
+      "totalRssSlopeMibPerMin": 893.14,
+      "processes": {
+        "api-server": {
+          "instances": 1,
+          "rssMib": {
+            "first": 655,
+            "last": 883.1,
+            "max": 927,
+            "mean": 817.8
+          },
+          "pssMib": 779.5,
+          "peakRssMib": 928.3,
+          "threadsMax": 11,
+          "fdsMax": 69,
+          "cpuSecondsUsed": 27.4,
+          "rssSlopeMibPerMin": 756.81
+        },
+        "worker": {
+          "instances": 1,
+          "rssMib": {
+            "first": 133.3,
+            "last": 172.4,
+            "max": 172.8,
+            "mean": 153.4
+          },
+          "pssMib": 115.3,
+          "peakRssMib": 272.4,
+          "threadsMax": 11,
+          "fdsMax": 39,
+          "cpuSecondsUsed": 2.2,
+          "rssSlopeMibPerMin": 136.33
+        }
+      }
+    },
+    "ready": {
+      "durationS": 20.2,
+      "samples": 13,
+      "totalRssMib": {
+        "first": 675.5,
+        "last": 680,
+        "min": 675.5,
+        "max": 680,
+        "mean": 678.5,
+        "samples": 13
+      },
+      "totalRssSlopeMibPerMin": 9.95,
+      "processes": {
+        "api-server": {
+          "instances": 1,
+          "rssMib": {
+            "first": 403.2,
+            "last": 407.7,
+            "max": 407.7,
+            "mean": 406.3
+          },
+          "pssMib": 366.9,
+          "peakRssMib": 442,
+          "threadsMax": 11,
+          "fdsMax": 51,
+          "cpuSecondsUsed": 0.3,
+          "rssSlopeMibPerMin": 9.94
+        },
+        "worker": {
+          "instances": 1,
+          "rssMib": {
+            "first": 272.3,
+            "last": 272.3,
+            "max": 272.3,
+            "mean": 272.3
+          },
+          "pssMib": 232.9,
+          "peakRssMib": 272.3,
+          "threadsMax": 11,
+          "fdsMax": 27,
+          "cpuSecondsUsed": 0.1,
+          "rssSlopeMibPerMin": 0.01
+        }
+      }
+    },
+    "settle": {
+      "durationS": 150.6,
+      "samples": 57,
+      "totalRssMib": {
+        "first": 1053.4,
+        "last": 1309.3,
+        "min": 1053.4,
+        "max": 1672.2,
+        "mean": 1499.5,
+        "samples": 57
+      },
+      "totalRssSlopeMibPerMin": -16.24,
+      "processes": {
+        "api-server": {
+          "instances": 1,
+          "rssMib": {
+            "first": 872.3,
+            "last": 1209.7,
+            "max": 1573.9,
+            "mean": 1396.3
+          },
+          "pssMib": 1372.2,
+          "peakRssMib": 1960.6,
+          "threadsMax": 11,
+          "fdsMax": 45,
+          "cpuSecondsUsed": 18.9,
+          "rssSlopeMibPerMin": -3.09
+        },
+        "worker": {
+          "instances": 1,
+          "rssMib": {
+            "first": 181.1,
+            "last": 99.5,
+            "max": 181.1,
+            "mean": 103.2
+          },
+          "pssMib": 79.1,
+          "peakRssMib": 272.4,
+          "threadsMax": 11,
+          "fdsMax": 29,
+          "cpuSecondsUsed": 4.3,
+          "rssSlopeMibPerMin": -13.16
+        }
+      }
+    },
+    "soak": {
+      "durationS": 90,
+      "samples": 52,
+      "totalRssMib": {
+        "first": 1031.3,
+        "last": 1446.8,
+        "min": 1031.3,
+        "max": 1940,
+        "mean": 1491.9,
+        "samples": 52
+      },
+      "totalRssSlopeMibPerMin": -217.85,
+      "processes": {
+        "api-server": {
+          "instances": 1,
+          "rssMib": {
+            "first": 859.3,
+            "last": 1242.3,
+            "max": 1792.7,
+            "mean": 1320
+          },
+          "pssMib": 1291,
+          "peakRssMib": 1960.6,
+          "threadsMax": 11,
+          "fdsMax": 70,
+          "cpuSecondsUsed": 82.5,
+          "rssSlopeMibPerMin": -273.62
+        },
+        "worker": {
+          "instances": 1,
+          "rssMib": {
+            "first": 172,
+            "last": 204.5,
+            "max": 213.5,
+            "mean": 171.9
+          },
+          "pssMib": 143.2,
+          "peakRssMib": 272.4,
+          "threadsMax": 11,
+          "fdsMax": 39,
+          "cpuSecondsUsed": 4.6,
+          "rssSlopeMibPerMin": 55.77
+        }
+      }
+    }
+  },
+  "containers": {
+    "graphql": {
+      "totalMemMib": 3049.7,
+      "containers": {
+        "coop-clickhouse-1": {
+          "memMib": {
+            "first": 1329.2,
+            "last": 1382.4,
+            "min": 1293.3,
+            "max": 1382.4,
+            "mean": 1342.7,
+            "samples": 5
+          },
+          "cpuPercentMean": 7.8,
+          "pidsMax": 911
+        },
+        "coop-hma-1": {
+          "memMib": {
+            "first": 40,
+            "last": 40.1,
+            "min": 39.1,
+            "max": 40.1,
+            "mean": 39.8,
+            "samples": 5
+          },
+          "cpuPercentMean": 0.2,
+          "pidsMax": 22
+        },
+        "coop-jaeger-1": {
+          "memMib": {
+            "first": 12.5,
+            "last": 12.5,
+            "min": 12.5,
+            "max": 12.5,
+            "mean": 12.5,
+            "samples": 5
+          },
+          "cpuPercentMean": 0,
+          "pidsMax": 13
+        },
+        "coop-otel-collector-1": {
+          "memMib": {
+            "first": 117.3,
+            "last": 117.1,
+            "min": 117.1,
+            "max": 117.3,
+            "mean": 117.1,
+            "samples": 5
+          },
+          "cpuPercentMean": 0,
+          "pidsMax": 13
+        },
+        "coop-postgres-1": {
+          "memMib": {
+            "first": 37.1,
+            "last": 39.6,
+            "min": 37.1,
+            "max": 40,
+            "mean": 39,
+            "samples": 5
+          },
+          "cpuPercentMean": 42.7,
+          "pidsMax": 14
+        },
+        "coop-redis-1": {
+          "memMib": {
+            "first": 8.1,
+            "last": 8,
+            "min": 7.6,
+            "max": 8.1,
+            "mean": 7.9,
+            "samples": 5
+          },
+          "cpuPercentMean": 1.2,
+          "pidsMax": 6
+        },
+        "coop-scylla-1": {
+          "memMib": {
+            "first": 1518.6,
+            "last": 1483.8,
+            "min": 1483.8,
+            "max": 1518.6,
+            "mean": 1490.7,
+            "samples": 5
+          },
+          "cpuPercentMean": 10.3,
+          "pidsMax": 53
+        }
+      }
+    },
+    "idle": {
+      "totalMemMib": 3315.6,
+      "containers": {
+        "coop-clickhouse-1": {
+          "memMib": {
+            "first": 1679.4,
+            "last": 1355.8,
+            "min": 1355.8,
+            "max": 1710.1,
+            "mean": 1591.5,
+            "samples": 13
+          },
+          "cpuPercentMean": 13.8,
+          "pidsMax": 911
+        },
+        "coop-hma-1": {
+          "memMib": {
+            "first": 36.6,
+            "last": 39.6,
+            "min": 36.6,
+            "max": 40,
+            "mean": 38.7,
+            "samples": 13
+          },
+          "cpuPercentMean": 0.2,
+          "pidsMax": 22
+        },
+        "coop-jaeger-1": {
+          "memMib": {
+            "first": 12.5,
+            "last": 12.7,
+            "min": 12.5,
+            "max": 13,
+            "mean": 12.6,
+            "samples": 13
+          },
+          "cpuPercentMean": 0,
+          "pidsMax": 13
+        },
+        "coop-otel-collector-1": {
+          "memMib": {
+            "first": 108.1,
+            "last": 113.4,
+            "min": 108.1,
+            "max": 113.4,
+            "mean": 112.8,
+            "samples": 13
+          },
+          "cpuPercentMean": 0,
+          "pidsMax": 13
+        },
+        "coop-postgres-1": {
+          "memMib": {
+            "first": 27,
+            "last": 27.8,
+            "min": 27,
+            "max": 28.3,
+            "mean": 27.7,
+            "samples": 13
+          },
+          "cpuPercentMean": 1.4,
+          "pidsMax": 11
+        },
+        "coop-redis-1": {
+          "memMib": {
+            "first": 7.5,
+            "last": 7.9,
+            "min": 7.5,
+            "max": 8.2,
+            "mean": 7.9,
+            "samples": 13
+          },
+          "cpuPercentMean": 1.3,
+          "pidsMax": 6
+        },
+        "coop-scylla-1": {
+          "memMib": {
+            "first": 1560.6,
+            "last": 1518.6,
+            "min": 1515.5,
+            "max": 1560.6,
+            "mean": 1524.4,
+            "samples": 13
+          },
+          "cpuPercentMean": 8.9,
+          "pidsMax": 55
+        }
+      }
+    },
+    "ingest": {
+      "totalMemMib": 3564.8,
+      "containers": {
+        "coop-clickhouse-1": {
+          "memMib": {
+            "first": 1492,
+            "last": 2181.1,
+            "min": 1492,
+            "max": 2283.5,
+            "mean": 1959.3,
+            "samples": 5
+          },
+          "cpuPercentMean": 266.4,
+          "pidsMax": 911
+        },
+        "coop-hma-1": {
+          "memMib": {
+            "first": 39.1,
+            "last": 36.7,
+            "min": 34.3,
+            "max": 39.9,
+            "mean": 36.9,
+            "samples": 5
+          },
+          "cpuPercentMean": 0.2,
+          "pidsMax": 22
+        },
+        "coop-jaeger-1": {
+          "memMib": {
+            "first": 12.8,
+            "last": 13.1,
+            "min": 12.8,
+            "max": 13.2,
+            "mean": 13,
+            "samples": 5
+          },
+          "cpuPercentMean": 0,
+          "pidsMax": 13
+        },
+        "coop-otel-collector-1": {
+          "memMib": {
+            "first": 117.2,
+            "last": 35.4,
+            "min": 16.3,
+            "max": 117.2,
+            "mean": 47.9,
+            "samples": 5
+          },
+          "cpuPercentMean": 0.1,
+          "pidsMax": 13
+        },
+        "coop-postgres-1": {
+          "memMib": {
+            "first": 53.8,
+            "last": 53.7,
+            "min": 50.6,
+            "max": 69.3,
+            "mean": 58.1,
+            "samples": 5
+          },
+          "cpuPercentMean": 14.1,
+          "pidsMax": 17
+        },
+        "coop-redis-1": {
+          "memMib": {
+            "first": 6.4,
+            "last": 7.6,
+            "min": 6.4,
+            "max": 29.7,
+            "mean": 15.6,
+            "samples": 5
+          },
+          "cpuPercentMean": 2.7,
+          "pidsMax": 6
+        },
+        "coop-scylla-1": {
+          "memMib": {
+            "first": 1471.5,
+            "last": 1463.3,
+            "min": 1359.9,
+            "max": 1500.2,
+            "mean": 1434,
+            "samples": 5
+          },
+          "cpuPercentMean": 39.8,
+          "pidsMax": 53
+        }
+      }
+    },
+    "ready": {
+      "totalMemMib": 3078.7,
+      "containers": {
+        "coop-clickhouse-1": {
+          "memMib": {
+            "first": 1322,
+            "last": 1342.5,
+            "min": 1322,
+            "max": 1396.7,
+            "mean": 1354.3,
+            "samples": 5
+          },
+          "cpuPercentMean": 4,
+          "pidsMax": 911
+        },
+        "coop-hma-1": {
+          "memMib": {
+            "first": 38.9,
+            "last": 40,
+            "min": 38.9,
+            "max": 40,
+            "mean": 39.3,
+            "samples": 5
+          },
+          "cpuPercentMean": 0.2,
+          "pidsMax": 22
+        },
+        "coop-jaeger-1": {
+          "memMib": {
+            "first": 12.5,
+            "last": 12.5,
+            "min": 12.5,
+            "max": 12.7,
+            "mean": 12.6,
+            "samples": 5
+          },
+          "cpuPercentMean": 0,
+          "pidsMax": 13
+        },
+        "coop-otel-collector-1": {
+          "memMib": {
+            "first": 116.7,
+            "last": 117.3,
+            "min": 116.7,
+            "max": 117.3,
+            "mean": 117,
+            "samples": 5
+          },
+          "cpuPercentMean": 0,
+          "pidsMax": 13
+        },
+        "coop-postgres-1": {
+          "memMib": {
+            "first": 28.7,
+            "last": 28.5,
+            "min": 28.1,
+            "max": 28.7,
+            "mean": 28.5,
+            "samples": 5
+          },
+          "cpuPercentMean": 2.5,
+          "pidsMax": 10
+        },
+        "coop-redis-1": {
+          "memMib": {
+            "first": 7.9,
+            "last": 8.1,
+            "min": 7.8,
+            "max": 8.1,
+            "mean": 8,
+            "samples": 5
+          },
+          "cpuPercentMean": 0.6,
+          "pidsMax": 6
+        },
+        "coop-scylla-1": {
+          "memMib": {
+            "first": 1519.6,
+            "last": 1518.6,
+            "min": 1518.6,
+            "max": 1519.6,
+            "mean": 1519,
+            "samples": 5
+          },
+          "cpuPercentMean": 20.5,
+          "pidsMax": 53
+        }
+      }
+    },
+    "settle": {
+      "totalMemMib": 3613.9,
+      "containers": {
+        "coop-clickhouse-1": {
+          "memMib": {
+            "first": 2235.4,
+            "last": 2370.6,
+            "min": 1838.1,
+            "max": 2428.9,
+            "mean": 2237.6,
+            "samples": 19
+          },
+          "cpuPercentMean": 80.2,
+          "pidsMax": 915
+        },
+        "coop-hma-1": {
+          "memMib": {
+            "first": 38.4,
+            "last": 39,
+            "min": 37.3,
+            "max": 41.3,
+            "mean": 39.1,
+            "samples": 19
+          },
+          "cpuPercentMean": 0.2,
+          "pidsMax": 22
+        },
+        "coop-jaeger-1": {
+          "memMib": {
+            "first": 7,
+            "last": 13.3,
+            "min": 6.6,
+            "max": 26.1,
+            "mean": 11.9,
+            "samples": 19
+          },
+          "cpuPercentMean": 0.5,
+          "pidsMax": 13
+        },
+        "coop-otel-collector-1": {
+          "memMib": {
+            "first": 98.1,
+            "last": 47,
+            "min": 1.8,
+            "max": 98.1,
+            "mean": 27,
+            "samples": 19
+          },
+          "cpuPercentMean": 0.9,
+          "pidsMax": 13
+        },
+        "coop-postgres-1": {
+          "memMib": {
+            "first": 50.6,
+            "last": 30.8,
+            "min": 20.5,
+            "max": 50.6,
+            "mean": 29.8,
+            "samples": 19
+          },
+          "cpuPercentMean": 2.3,
+          "pidsMax": 18
+        },
+        "coop-redis-1": {
+          "memMib": {
+            "first": 25,
+            "last": 22,
+            "min": 2.5,
+            "max": 26.5,
+            "mean": 12.4,
+            "samples": 19
+          },
+          "cpuPercentMean": 1.6,
+          "pidsMax": 8
+        },
+        "coop-scylla-1": {
+          "memMib": {
+            "first": 1581.1,
+            "last": 1147.9,
+            "min": 1144.8,
+            "max": 1630.2,
+            "mean": 1256.1,
+            "samples": 19
+          },
+          "cpuPercentMean": 7.8,
+          "pidsMax": 58
+        }
+      }
+    },
+    "soak": {
+      "totalMemMib": 3512.6,
+      "containers": {
+        "coop-clickhouse-1": {
+          "memMib": {
+            "first": 2062.3,
+            "last": 2322.4,
+            "min": 1845.3,
+            "max": 2518,
+            "mean": 2230.4,
+            "samples": 18
+          },
+          "cpuPercentMean": 251.4,
+          "pidsMax": 917
+        },
+        "coop-hma-1": {
+          "memMib": {
+            "first": 41,
+            "last": 33.1,
+            "min": 25.6,
+            "max": 41,
+            "mean": 30.3,
+            "samples": 18
+          },
+          "cpuPercentMean": 0.3,
+          "pidsMax": 22
+        },
+        "coop-jaeger-1": {
+          "memMib": {
+            "first": 13.3,
+            "last": 6.9,
+            "min": 6.9,
+            "max": 13.7,
+            "mean": 9.9,
+            "samples": 18
+          },
+          "cpuPercentMean": 0,
+          "pidsMax": 13
+        },
+        "coop-otel-collector-1": {
+          "memMib": {
+            "first": 36.2,
+            "last": 12.8,
+            "min": 12.8,
+            "max": 36.2,
+            "mean": 18.9,
+            "samples": 18
+          },
+          "cpuPercentMean": 2.3,
+          "pidsMax": 13
+        },
+        "coop-postgres-1": {
+          "memMib": {
+            "first": 57.7,
+            "last": 23.9,
+            "min": 22.8,
+            "max": 57.7,
+            "mean": 31.9,
+            "samples": 18
+          },
+          "cpuPercentMean": 21.8,
+          "pidsMax": 17
+        },
+        "coop-redis-1": {
+          "memMib": {
+            "first": 8.1,
+            "last": 4.4,
+            "min": 3.4,
+            "max": 26.1,
+            "mean": 10.8,
+            "samples": 18
+          },
+          "cpuPercentMean": 3.1,
+          "pidsMax": 9
+        },
+        "coop-scylla-1": {
+          "memMib": {
+            "first": 1353.7,
+            "last": 1354.8,
+            "min": 1018,
+            "max": 1354.8,
+            "mean": 1180.4,
+            "samples": 18
+          },
+          "cpuPercentMean": 41.5,
+          "pidsMax": 54
+        }
+      }
+    }
+  },
+  "probe": {
+    "probe-server": {
+      "samples": 313,
+      "uptimeS": 399.9,
+      "rssMib": {
+        "first": 45.7,
+        "last": 1218.9,
+        "min": 45.7,
+        "max": 1777.5,
+        "mean": 953.2,
+        "samples": 313
+      },
+      "heapUsedMib": {
+        "first": 4.8,
+        "last": 71.8,
+        "min": 4.8,
+        "max": 953.5,
+        "mean": 299.8,
+        "samples": 313
+      },
+      "heapTotalMib": {
+        "first": 6.3,
+        "last": 74.6,
+        "min": 6.3,
+        "max": 1073.7,
+        "mean": 431.5,
+        "samples": 313
+      },
+      "externalMib": {
+        "first": 2,
+        "last": 4.5,
+        "min": 2,
+        "max": 63.4,
+        "mean": 16.3,
+        "samples": 313
+      },
+      "arrayBuffersMib": {
+        "first": 0.1,
+        "last": 0.5,
+        "min": 0.1,
+        "max": 59.5,
+        "mean": 12.3,
+        "samples": 313
+      },
+      "heapUsedSlopeMibPerMin": 31.72,
+      "handlesMax": 48,
+      "handleTypesAtEnd": {
+        "Server": 1,
+        "Socket": 11
+      },
+      "detachedContextsMax": 0,
+      "eventLoopDelayP99MsMax": 7436.5,
+      "heapSpacesAtEndMib": {
+        "code_large_object_space": 0.2,
+        "code_space": 4.9,
+        "large_object_space": 7.1,
+        "new_large_object_space": 0,
+        "new_space": 0.1,
+        "old_space": 54.2,
+        "read_only_space": 0,
+        "shared_large_object_space": 0,
+        "shared_space": 0,
+        "shared_trusted_large_object_space": 0,
+        "shared_trusted_space": 0,
+        "trusted_large_object_space": 0,
+        "trusted_space": 5.3
+      }
+    },
+    "probe-worker": {
+      "samples": 356,
+      "uptimeS": 397.3,
+      "rssMib": {
+        "first": 47.5,
+        "last": 98.5,
+        "min": 47.5,
+        "max": 271.5,
+        "mean": 177.1,
+        "samples": 356
+      },
+      "heapUsedMib": {
+        "first": 4.8,
+        "last": 50.8,
+        "min": 4.8,
+        "max": 115.7,
+        "mean": 67,
+        "samples": 356
+      },
+      "heapTotalMib": {
+        "first": 6.3,
+        "last": 66.9,
+        "min": 6.3,
+        "max": 198.7,
+        "mean": 153.2,
+        "samples": 356
+      },
+      "externalMib": {
+        "first": 2,
+        "last": 4.5,
+        "min": 2,
+        "max": 7.1,
+        "mean": 5,
+        "samples": 356
+      },
+      "arrayBuffersMib": {
+        "first": 0.1,
+        "last": 0.6,
+        "min": 0.1,
+        "max": 3.2,
+        "mean": 1.1,
+        "samples": 356
+      },
+      "heapUsedSlopeMibPerMin": 1.71,
+      "handlesMax": 17,
+      "handleTypesAtEnd": {
+        "Socket": 7
+      },
+      "detachedContextsMax": 0,
+      "eventLoopDelayP99MsMax": 329.3,
+      "heapSpacesAtEndMib": {
+        "code_large_object_space": 0.2,
+        "code_space": 3.4,
+        "large_object_space": 5.5,
+        "new_large_object_space": 0,
+        "new_space": 0.2,
+        "old_space": 37.6,
+        "read_only_space": 0,
+        "shared_large_object_space": 0,
+        "shared_space": 0,
+        "shared_trusted_large_object_space": 0,
+        "shared_trusted_space": 0,
+        "trusted_large_object_space": 0,
+        "trusted_space": 4
+      }
+    }
+  },
+  "load": {
+    "graphql": {
+      "label": "graphql",
+      "scenario": "graphql-me",
+      "concurrency": 25,
+      "durationS": 20,
+      "requests": 18852,
+      "requestsPerSecond": 941.5,
+      "itemsSubmitted": 0,
+      "errors": 0,
+      "statusCounts": {
+        "200": 18852
+      },
+      "responseBytes": 1941756,
+      "firstErrorBody": null,
+      "latencyMs": {
+        "mean": 26.52,
+        "p50": 24.3,
+        "p90": 32.61,
+        "p99": 61.64,
+        "max": 97.84
+      }
+    },
+    "ingest": {
+      "label": "ingest",
+      "scenario": "items-async",
+      "concurrency": 25,
+      "durationS": 22.1,
+      "requests": 5095,
+      "requestsPerSecond": 230.2,
+      "itemsSubmitted": 25475,
+      "errors": 0,
+      "statusCounts": {
+        "202": 5095
+      },
+      "responseBytes": 0,
+      "firstErrorBody": null,
+      "latencyMs": {
+        "mean": 104.21,
+        "p50": 52.39,
+        "p90": 201.65,
+        "p99": 662.27,
+        "max": 2209.09
+      }
+    },
+    "ready": {
+      "label": "ready",
+      "scenario": "ready",
+      "concurrency": 25,
+      "durationS": 20.1,
+      "requests": 500,
+      "requestsPerSecond": 24.9,
+      "itemsSubmitted": 0,
+      "errors": 0,
+      "statusCounts": {
+        "200": 500
+      },
+      "responseBytes": 3500,
+      "firstErrorBody": null,
+      "latencyMs": {
+        "mean": 1002.86,
+        "p50": 1001.91,
+        "p90": 1006.62,
+        "p99": 1013.95,
+        "max": 1016.42
+      }
+    },
+    "soak": {
+      "label": "soak",
+      "scenario": "mixed",
+      "concurrency": 25,
+      "durationS": 91,
+      "requests": 18060,
+      "requestsPerSecond": 198.4,
+      "itemsSubmitted": 26985,
+      "errors": 0,
+      "statusCounts": {
+        "200": 12663,
+        "202": 5397
+      },
+      "responseBytes": 1304289,
+      "firstErrorBody": null,
+      "latencyMs": {
+        "mean": 125.85,
+        "p50": 86,
+        "p90": 195.17,
+        "p99": 662.33,
+        "max": 6159.82
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "label": "soak",
+  "scenario": "mixed",
+  "concurrency": 25,
+  "durationS": 180,
+  "requests": 2405901,
+  "requestsPerSecond": 13366,
+  "itemsSubmitted": 3617140,
+  "errors": 2405901,
+  "statusCounts": {
+    "err:ECONNREFUSED": 2405901
+  },
+  "responseBytes": 0,
+  "firstErrorBody": null,
+  "latencyMs": {
+    "mean": 1.87,
+    "p50": 1.71,
+    "p90": 2.07,
+    "p99": 6.58,
+    "max": 25.6
+  }
+}

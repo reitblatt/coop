@@ -1,0 +1,22 @@
+{
+  "label": "ingest",
+  "scenario": "items-async",
+  "concurrency": 25,
+  "durationS": 22.1,
+  "requests": 5095,
+  "requestsPerSecond": 230.2,
+  "itemsSubmitted": 25475,
+  "errors": 0,
+  "statusCounts": {
+    "202": 5095
+  },
+  "responseBytes": 0,
+  "firstErrorBody": null,
+  "latencyMs": {
+    "mean": 104.21,
+    "p50": 52.39,
+    "p90": 201.65,
+    "p99": 662.27,
+    "max": 2209.09
+  }
+}

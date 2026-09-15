@@ -1,0 +1,22 @@
+{
+  "label": "graphql",
+  "scenario": "graphql-me",
+  "concurrency": 25,
+  "durationS": 20,
+  "requests": 18852,
+  "requestsPerSecond": 941.5,
+  "itemsSubmitted": 0,
+  "errors": 0,
+  "statusCounts": {
+    "200": 18852
+  },
+  "responseBytes": 1941756,
+  "firstErrorBody": null,
+  "latencyMs": {
+    "mean": 26.52,
+    "p50": 24.3,
+    "p90": 32.61,
+    "p99": 61.64,
+    "max": 97.84
+  }
+}

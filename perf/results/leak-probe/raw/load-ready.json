@@ -1,0 +1,22 @@
+{
+  "label": "ready",
+  "scenario": "ready",
+  "concurrency": 25,
+  "durationS": 20.1,
+  "requests": 500,
+  "requestsPerSecond": 24.9,
+  "itemsSubmitted": 0,
+  "errors": 0,
+  "statusCounts": {
+    "200": 500
+  },
+  "responseBytes": 3500,
+  "firstErrorBody": null,
+  "latencyMs": {
+    "mean": 1002.86,
+    "p50": 1001.91,
+    "p90": 1006.62,
+    "p99": 1013.95,
+    "max": 1016.42
+  }
+}

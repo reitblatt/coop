@@ -1,0 +1,389 @@
+{"message":"Integrations: config=/home/coder/coop/server/integrations.config.json, loaded=4 (GOOGLE_CONTENT_SAFETY_API, OPEN_AI, ZENTROPI, COOP_INTEGRATION_EXAMPLE)"}
+{"message":"Server is running at http://localhost:8080"}
+[probe] wrote heap snapshot: /home/coder/coop/perf/results/leak-probe/raw/heap-1789494691675.heapsnapshot
+[probe] wrote heap snapshot: /home/coder/coop/perf/results/leak-probe/raw/heap-1789494763204.heapsnapshot
+[probe] wrote heap snapshot: /home/coder/coop/perf/results/leak-probe/raw/heap-1789494859813.heapsnapshot
+[2026-09-15T17:54:40.522Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '806d05b3-021e-4d69-851c-84506bafa28e',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:54:40.527Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '3bcacf04-93e2-45a9-bbba-61bb20dac86e',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:54:40.527Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '9e7bea33-907f-4e55-a641-73f1ceceecd1',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:54:40.527Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '39884af8-c35c-4aa1-98cb-114cf14149b5',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:54:40.528Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '9b6afffd-c742-477d-b33d-9f3501f40b1c',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:54:40.528Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: 'ac0a668f-0000-49f5-8cdd-1e4e8122349d',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:54:40.528Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: 'cf409450-f0bd-4771-95b5-e99a1676100c',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:54:40.528Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: 'c210666f-ba78-4715-b785-cff35bb95e00',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:54:40.529Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '65115479-d645-469a-9cd3-a6efa3cbd976',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:54:40.529Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: 'a3e94e41-3f67-4d50-8a84-c7fb80b529b9',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:55:04.617Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '95b1ecb6-28ba-4e79-8852-1936acba2401',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:55:05.905Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '98ee0b3c-8a23-4fa2-ab4b-e5577fce3aab',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:55:08.937Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '3918ce2f-4fc0-4c56-8479-0dc15f7ab111',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:55:40.383Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '70a89acc-d547-460d-b243-31b907fd6b19',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: Timeout error.
+    at Socket.onTimeout (/home/coder/coop/server/node_modules/@clickhouse/client/dist/connection/socket_pool.js:537:60)
+    at Socket.wrapper (node:events:639:12)
+    at Socket.emit (node:events:526:24)
+    at Socket._onTimeout (node:net:822:8)
+    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)
+    at listOnTimeout (node:internal/timers:687:11)
+    at process.processTimers (node:internal/timers:618:7)
+[2026-09-15T17:55:42.753Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: 'b481d44a-a5ee-45a0-a41f-449cc4ff7998',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: Timeout error.
+    at Socket.onTimeout (/home/coder/coop/server/node_modules/@clickhouse/client/dist/connection/socket_pool.js:537:60)
+    at Socket.wrapper (node:events:639:12)
+    at Socket.emit (node:events:526:24)
+    at Socket._onTimeout (node:net:822:8)
+    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)
+    at listOnTimeout (node:internal/timers:687:11)
+    at process.processTimers (node:internal/timers:618:7)
+{"error":{"message":"scylla.warning: [Connection] Received heartbeat request error","name":"Error","stack":"OperationTimedOutError: The host 127.0.0.1:9042 did not reply before timeout 12000 ms\n    at Timeout.requestTimedOut [as _onTimeout] (/home/coder/coop/server/node_modules/cassandra-driver/lib/operation-state.js:109:28)\n    at listOnTimeout (node:internal/timers:685:17)\n    at process.processTimers (node:internal/timers:618:7)"},"message":"scylla.driver.warning"}
+{"error":{"message":"scylla.warning: [Connection] Received heartbeat request error","name":"Error","stack":"OperationTimedOutError: The host 127.0.0.1:9042 did not reply before timeout 12000 ms\n    at Timeout.requestTimedOut [as _onTimeout] (/home/coder/coop/server/node_modules/cassandra-driver/lib/operation-state.js:109:28)\n    at listOnTimeout (node:internal/timers:685:17)\n    at process.processTimers (node:internal/timers:618:7)"},"message":"scylla.driver.warning"}
+[2026-09-15T17:55:45.734Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: 'b37ba5e0-81cb-4589-b55c-47f92b2ce246',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:55:45.759Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '8d00466a-ee44-4935-8d28-59b4ca834511',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+[2026-09-15T17:55:45.761Z][ERROR][@clickhouse/client][Connection] Insert: HTTP request error. 
+Arguments: {
+  operation: 'Insert',
+  connection_id: '3584c307-9b60-41ce-9c43-1395683fe6fc',
+  query_id: '6fb1e81e-a8a0-461c-a35e-523355e2b6b3',
+  with_abort_signal: false,
+  session_id: undefined,
+  clickhouse_settings: {
+    max_bytes_before_external_group_by: '1500000000',
+    max_bytes_before_external_sort: '1500000000',
+    max_threads: 2,
+    max_block_size: '32768'
+  }
+} 
+Caused by: Error: socket hang up
+    at Socket.socketOnEnd (node:_http_client:790:25)
+    at Socket.emit (node:events:526:24)
+    at endReadableNT (node:internal/streams/readable:1757:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'ECONNRESET'
+}
+{"error":{"message":"scylla.error: [Connection] The server replied with a wrong streamId #1","name":"Error","stack":"Error: scylla.error: [Connection] The server replied with a wrong streamId #1\n    at Client.<anonymous> (file:///home/coder/coop/server/transpiled/iocContainer/index.js:377:29)\n    at Client.emit (node:events:514:28)\n    at Connection.log (/home/coder/coop/server/node_modules/cassandra-driver/lib/utils.js:140:8)\n    at Connection.handleResult (/home/coder/coop/server/node_modules/cassandra-driver/lib/connection.js:692:19)\n    at ResultEmitter.emit (node:events:514:28)\n    at ResultEmitter.each (/home/coder/coop/server/node_modules/cassandra-driver/lib/streams.js:564:15)\n    at ResultEmitter._write (/home/coder/coop/server/node_modules/cassandra-driver/lib/streams.js:523:10)\n    at writeOrBuffer (node:internal/streams/writable:574:12)\n    at _write (node:internal/streams/writable:503:10)\n    at Writable.write (node:internal/streams/writable:512:10)"},"message":"scylla.driver.error"}
+[probe] wrote heap snapshot: /home/coder/coop/perf/results/leak-probe/raw/heap-1789495014601.heapsnapshot

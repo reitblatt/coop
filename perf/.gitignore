@@ -1,0 +1,6 @@
+# Heap snapshots are hundreds of MB each. Keep them locally while you analyse
+# them (perf/bin/analyze-heapsnapshot.mjs), commit the analysis, not the dump.
+*.heapsnapshot
+
+# Contains a live session cookie and API key for the load-test org.
+results/fixtures.json

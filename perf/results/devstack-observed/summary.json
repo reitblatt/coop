@@ -1,0 +1,160 @@
+{
+  "meta": {},
+  "footprint": null,
+  "startup": null,
+  "processes": {
+    "devstack-idle": {
+      "durationS": 394.5,
+      "samples": 196,
+      "totalRssMib": {
+        "first": 2519.1,
+        "last": 0,
+        "min": 0,
+        "max": 2521.1,
+        "mean": 1332.3,
+        "samples": 196
+      },
+      "totalRssSlopeMibPerMin": -244.34,
+      "processes": {
+        "api-server": {
+          "instances": 1,
+          "rssMib": {
+            "first": 466.3,
+            "last": 145.3,
+            "max": 466.3,
+            "mean": 198.6
+          },
+          "pssMib": 148.7,
+          "peakRssMib": 467.2,
+          "threadsMax": 11,
+          "fdsMax": 32,
+          "cpuSecondsUsed": 0.5,
+          "rssSlopeMibPerMin": -40.66
+        },
+        "concurrently": {
+          "instances": 1,
+          "rssMib": {
+            "first": 51.2,
+            "last": 50,
+            "max": 51.2,
+            "mean": 50.2
+          },
+          "pssMib": 5.9,
+          "peakRssMib": 72.1,
+          "threadsMax": 7,
+          "fdsMax": 31,
+          "cpuSecondsUsed": 0,
+          "rssSlopeMibPerMin": -0.2
+        },
+        "esbuild-service": {
+          "instances": 1,
+          "rssMib": {
+            "first": 30.9,
+            "last": 20.5,
+            "max": 31.1,
+            "mean": 23.6
+          },
+          "pssMib": 23.6,
+          "peakRssMib": 688.6,
+          "threadsMax": 34,
+          "fdsMax": 5,
+          "cpuSecondsUsed": 0.2,
+          "rssSlopeMibPerMin": -2.04
+        },
+        "graphql-codegen-watch": {
+          "instances": 1,
+          "rssMib": {
+            "first": 189.4,
+            "last": 66.4,
+            "max": 189.4,
+            "mean": 96
+          },
+          "pssMib": 48.8,
+          "peakRssMib": 553.7,
+          "threadsMax": 13,
+          "fdsMax": 25,
+          "cpuSecondsUsed": 0,
+          "rssSlopeMibPerMin": -20.12
+        },
+        "npm": {
+          "instances": 5,
+          "rssMib": {
+            "first": 50.9,
+            "last": 50,
+            "max": 51.7,
+            "mean": 50.2
+          },
+          "pssMib": 4.5,
+          "peakRssMib": 68.4,
+          "threadsMax": 11,
+          "fdsMax": 22,
+          "cpuSecondsUsed": 0,
+          "rssSlopeMibPerMin": -0.16
+        },
+        "shell": {
+          "instances": 8,
+          "rssMib": {
+            "first": 1.9,
+            "last": 1.7,
+            "max": 1.9,
+            "mean": 1.8
+          },
+          "pssMib": 0.1,
+          "peakRssMib": 1.9,
+          "threadsMax": 1,
+          "fdsMax": 3,
+          "cpuSecondsUsed": 0,
+          "rssSlopeMibPerMin": 0
+        },
+        "tsc-watch(compiler)": {
+          "instances": 1,
+          "rssMib": {
+            "first": 1291.1,
+            "last": 290.2,
+            "max": 1293.3,
+            "mean": 547.7
+          },
+          "pssMib": 502.1,
+          "peakRssMib": 1626.3,
+          "threadsMax": 11,
+          "fdsMax": 22,
+          "cpuSecondsUsed": 0.4,
+          "rssSlopeMibPerMin": -162.98
+        },
+        "tsc-watch(wrapper)": {
+          "instances": 1,
+          "rssMib": {
+            "first": 43.2,
+            "last": 39.3,
+            "max": 43.2,
+            "mean": 40.2
+          },
+          "pssMib": 4.1,
+          "peakRssMib": 50.8,
+          "threadsMax": 7,
+          "fdsMax": 24,
+          "cpuSecondsUsed": 0,
+          "rssSlopeMibPerMin": -0.65
+        },
+        "vite-dev-server": {
+          "instances": 1,
+          "rssMib": {
+            "first": 177.7,
+            "last": 95.6,
+            "max": 177.7,
+            "mean": 117.3
+          },
+          "pssMib": 65.3,
+          "peakRssMib": 409.6,
+          "threadsMax": 11,
+          "fdsMax": 25,
+          "cpuSecondsUsed": 0.2,
+          "rssSlopeMibPerMin": -14.4
+        }
+      }
+    }
+  },
+  "containers": {},
+  "probe": {},
+  "load": {}
+}
