@@ -135,9 +135,12 @@ builds. Sampled over 7 minutes:
 | **total**                   |           | **1332** | **2521** |
 
 Two things stand out. The TypeScript compiler peaks at 1.29 GiB during the
-first full type-check before settling near 434 MiB — that peak, not the server,
-is what makes `npm start` feel heavy on a small machine. And **five `npm`
-processes hold ~250 MiB between them purely to spawn other processes**:
+first full type-check and does not reliably give it back: it was observed at
+434 MiB shortly after the initial compile but at 1.07 GiB after several hours of
+an editing session, so treat 548 MiB as a mean and the high end as where a long
+session lands. That, not the server, is what makes `npm start` feel heavy on a
+small machine. And **five `npm` processes hold ~250 MiB between them purely to
+spawn other processes**:
 `concurrently` runs `npm run server:start`, which runs `npm start`, which runs
 `tsc-watch`, with the same nesting on the client and codegen sides.
 
