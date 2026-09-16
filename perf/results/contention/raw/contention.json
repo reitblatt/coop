@@ -1,0 +1,189 @@
+{
+  "startedAt": "2026-09-16T21:57:41.737Z",
+  "config": {
+    "steps": [
+      5,
+      25,
+      75,
+      200
+    ],
+    "stepSeconds": 60,
+    "reviewerCount": 1,
+    "thinkMs": 0,
+    "maxInflight": 200
+  },
+  "steps": [
+    {
+      "targetReportsPerSec": 5,
+      "durationS": 60,
+      "reviewer": {
+        "jobsCompleted": 298,
+        "jobsPerMin": 298,
+        "dequeueMs": {
+          "p50": 6.3,
+          "p95": 10.5,
+          "p99": 11.9,
+          "max": 15.4
+        },
+        "decideMs": {
+          "p50": 6.3,
+          "p95": 8.3,
+          "p99": 10.2,
+          "max": 14.2
+        },
+        "emptyDequeues": 272,
+        "errors": {}
+      },
+      "ingest": {
+        "attempted": 299,
+        "accepted": 299,
+        "achievedPerSec": 5,
+        "reportMs": {
+          "p50": 12.3,
+          "p95": 15.1,
+          "p99": 16.6
+        },
+        "errors": {}
+      },
+      "queueDepth": {
+        "first": 0,
+        "last": 0,
+        "max": 1
+      },
+      "serverRssMib": {
+        "first": 34,
+        "last": 34,
+        "max": 34
+      }
+    },
+    {
+      "targetReportsPerSec": 25,
+      "durationS": 60,
+      "reviewer": {
+        "jobsCompleted": 1486,
+        "jobsPerMin": 1486,
+        "dequeueMs": {
+          "p50": 5.7,
+          "p95": 8,
+          "p99": 9.2,
+          "max": 12.4
+        },
+        "decideMs": {
+          "p50": 5.6,
+          "p95": 7.4,
+          "p99": 9.1,
+          "max": 10.9
+        },
+        "emptyDequeues": 208,
+        "errors": {}
+      },
+      "ingest": {
+        "attempted": 1489,
+        "accepted": 1489,
+        "achievedPerSec": 24.8,
+        "reportMs": {
+          "p50": 10.2,
+          "p95": 13,
+          "p99": 15.2
+        },
+        "errors": {}
+      },
+      "queueDepth": {
+        "first": 1,
+        "last": 4,
+        "max": 5
+      },
+      "serverRssMib": {
+        "first": 34,
+        "last": 34,
+        "max": 34
+      }
+    },
+    {
+      "targetReportsPerSec": 75,
+      "durationS": 60,
+      "reviewer": {
+        "jobsCompleted": 4541,
+        "jobsPerMin": 4540.9,
+        "dequeueMs": {
+          "p50": 6.2,
+          "p95": 8.3,
+          "p99": 10.2,
+          "max": 20.7
+        },
+        "decideMs": {
+          "p50": 6,
+          "p95": 8,
+          "p99": 9.5,
+          "max": 34.7
+        },
+        "emptyDequeues": 12,
+        "errors": {}
+      },
+      "ingest": {
+        "attempted": 4591,
+        "accepted": 4591,
+        "achievedPerSec": 76.5,
+        "reportMs": {
+          "p50": 8.6,
+          "p95": 11.3,
+          "p99": 15.1
+        },
+        "errors": {}
+      },
+      "queueDepth": {
+        "first": 3,
+        "last": 53,
+        "max": 54
+      },
+      "serverRssMib": {
+        "first": 34,
+        "last": 31,
+        "max": 34
+      }
+    },
+    {
+      "targetReportsPerSec": 200,
+      "durationS": 60,
+      "reviewer": {
+        "jobsCompleted": 3587,
+        "jobsPerMin": 3587.1,
+        "dequeueMs": {
+          "p50": 8.1,
+          "p95": 12.5,
+          "p99": 16.9,
+          "max": 32.7
+        },
+        "decideMs": {
+          "p50": 7.8,
+          "p95": 11.7,
+          "p99": 15.4,
+          "max": 33.2
+        },
+        "emptyDequeues": 0,
+        "errors": {}
+      },
+      "ingest": {
+        "attempted": 11812,
+        "accepted": 11810,
+        "achievedPerSec": 196.8,
+        "reportMs": {
+          "p50": 9.1,
+          "p95": 14.5,
+          "p99": 20.9
+        },
+        "errors": {}
+      },
+      "queueDepth": {
+        "first": 53,
+        "last": 8274,
+        "max": 8274
+      },
+      "serverRssMib": {
+        "first": 31,
+        "last": 30,
+        "max": 31
+      }
+    }
+  ]
+}

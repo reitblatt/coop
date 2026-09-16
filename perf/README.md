@@ -107,7 +107,44 @@ node perf/bin/analyze-heapsnapshot.mjs raw/heap-pre-soak.heapsnapshot \
 
 # Disk/image footprint on its own
 perf/bin/footprint.sh
+
+# Does heavy ingestion starve the review console? Steps report volume upward
+# while a reviewer works jobs, and reports reviewer cost per step.
+node perf/bin/contention.mjs --steps 100,200,400,800 --step-s 60 --server-pid <pid>
 ```
+
+## The contention test
+
+`contention.mjs` answers a different question from `run.sh`: not "how much does
+it cost" but "does ingest starve the interactive path". It runs a reviewer loop
+(`dequeueManualReviewJob` → `submitManualReviewDecision`, what a human working
+the console actually does) while injecting `POST /report/` open-loop at a
+stepped rate, and reports reviewer latency and throughput **per ingest step**.
+
+```
+ ingest/s  achieved  jobs/min  dequeue p50      p99  decide p50      p99   qdepth  rss MiB
+      100      99.6    3542.8          7.4     19.5         7.2     20.6    24453      511
+      400     325.7        25        109.1   5251.4        65.6   5007.7    51197      645
+```
+
+Flat reviewer columns across rising ingest means the paths are isolated. The
+example above is what "not isolated" looks like.
+
+Reset between runs or they contaminate each other — the review queue does not
+drain on its own, and a Scylla left degraded by one run will dominate the next:
+
+```bash
+QID=$(node -e "console.log(require('./perf/results/fixtures.json').queueId)")
+docker exec coop-redis-1 sh -c "redis-cli --scan --pattern '*$QID*' | xargs -r -n 500 redis-cli DEL"
+docker compose restart scylla   # then wait for healthy, ~3 min
+```
+
+Ingest is injected in batches on a 20 ms tick rather than one request per timer,
+because node cannot honour a 1 ms `setInterval` — a per-request timer silently
+under-delivers above ~100/s and you end up measuring the generator. The
+`skipped:generator-inflight-cap` counter in the output tells you when the
+generator hit `--max-inflight` because the server stopped completing requests;
+treat a large value as "the server is saturated", not as a generator artifact.
 
 ## Load scenarios
 

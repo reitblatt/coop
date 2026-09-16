@@ -1,0 +1,162 @@
+{
+  "startedAt": "2026-09-16T22:03:37.496Z",
+  "config": {
+    "steps": [
+      200,
+      500,
+      1000
+    ],
+    "stepSeconds": 90,
+    "reviewerCount": 1,
+    "thinkMs": 0,
+    "maxInflight": 600
+  },
+  "steps": [
+    {
+      "targetReportsPerSec": 200,
+      "durationS": 90,
+      "reviewer": {
+        "jobsCompleted": 1638,
+        "jobsPerMin": 1092,
+        "dequeueMs": {
+          "p50": 9.6,
+          "p95": 21,
+          "p99": 130.5,
+          "max": 20236.2
+        },
+        "decideMs": {
+          "p50": 9.5,
+          "p95": 20.1,
+          "p99": 96.4,
+          "max": 6255.4
+        },
+        "emptyDequeues": 0,
+        "errors": {
+          "dequeue:gql": 1
+        }
+      },
+      "ingest": {
+        "attempted": 12604,
+        "accepted": 12224,
+        "achievedPerSec": 135.8,
+        "reportMs": {
+          "p50": 25.2,
+          "p95": 7156.1,
+          "p99": 19265.4
+        },
+        "errors": {
+          "http:401": 222,
+          "skipped:generator-inflight-cap": 180
+        }
+      },
+      "queueDepth": {
+        "first": 8277,
+        "last": 17997,
+        "max": 17997
+      },
+      "serverRssMib": {
+        "first": 476,
+        "last": 501,
+        "max": 501
+      }
+    },
+    {
+      "targetReportsPerSec": 500,
+      "durationS": 98.1,
+      "reviewer": {
+        "jobsCompleted": 0,
+        "jobsPerMin": 0,
+        "dequeueMs": {
+          "p50": 48062.6,
+          "p95": 48062.6,
+          "p99": 48062.6,
+          "max": 48062.6
+        },
+        "decideMs": {
+          "p50": 31313.3,
+          "p95": 31313.3,
+          "p99": 31313.3,
+          "max": 31313.3
+        },
+        "emptyDequeues": 0,
+        "errors": {
+          "decide:500": 1,
+          "dequeue:gql": 1
+        }
+      },
+      "ingest": {
+        "attempted": 2875,
+        "accepted": 1452,
+        "achievedPerSec": 14.8,
+        "reportMs": {
+          "p50": 9371.1,
+          "p95": 37744.9,
+          "p99": 45953.3
+        },
+        "errors": {
+          "http:401": 981,
+          "skipped:generator-inflight-cap": 10675
+        }
+      },
+      "queueDepth": {
+        "first": null,
+        "last": null,
+        "max": null
+      },
+      "serverRssMib": {
+        "first": 500,
+        "last": 380,
+        "max": 551
+      }
+    },
+    {
+      "targetReportsPerSec": 1000,
+      "durationS": 100.7,
+      "reviewer": {
+        "jobsCompleted": 0,
+        "jobsPerMin": 0,
+        "dequeueMs": {
+          "p50": 41627,
+          "p95": 42849.6,
+          "p99": 42849.6,
+          "max": 42849.6
+        },
+        "decideMs": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "emptyDequeues": 0,
+        "errors": {
+          "dequeue:gql": 3
+        }
+      },
+      "ingest": {
+        "attempted": 2863,
+        "accepted": 1697,
+        "achievedPerSec": 16.9,
+        "reportMs": {
+          "p50": 22633.1,
+          "p95": 51336.1,
+          "p99": 51655.3
+        },
+        "errors": {
+          "http:401": 1746,
+          "skipped:generator-inflight-cap": 47097,
+          "http:500": 10
+        }
+      },
+      "queueDepth": {
+        "first": null,
+        "last": null,
+        "max": null
+      },
+      "serverRssMib": {
+        "first": 403,
+        "last": 592,
+        "max": 598
+      }
+    }
+  ]
+}

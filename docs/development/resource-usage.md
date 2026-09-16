@@ -15,19 +15,20 @@ Raw artifacts for every run quoted below are under `perf/results/`.
 
 ## The short version
 
-| question                           | answer                                                                                            |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Full local stack at rest           | **~1.6 GiB** — 1175 MiB containers + ~300 MiB API server + ~145 MiB worker                        |
-| The dev loop on top of that        | **~1.3 GiB steady, 2.5 GiB peak** of Node processes                                               |
-| Under ingest load                  | API server reaches **1.45 GiB**, containers **3.7 GiB**                                           |
-| Is there a memory leak?            | **No.** After the backlog drains the heap returns to 77 MiB, against 70 MiB at idle               |
-| So why does it look like one?      | The _live_ working set under load exceeds **494 MiB**, and RSS never returns to the OS afterwards |
-| What happens on a small container? | With `--max-old-space-size=512`, a **30-second** ingest burst OOM-kills the server                |
-| Cheapest single win                | One import line: **66 MiB RSS, 25 MiB heap, 150 ms boot**, measured end to end                    |
+| question                                  | answer                                                                                                                   |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Full local stack at rest                  | **~1.6 GiB** — 1175 MiB containers + ~300 MiB API server + ~145 MiB worker                                               |
+| The dev loop on top of that               | **~1.3 GiB steady, 2.5 GiB peak** of Node processes                                                                      |
+| Under ingest load                         | API server reaches **1.45 GiB**, containers **3.7 GiB**                                                                  |
+| Is there a memory leak?                   | **No.** After the backlog drains the heap returns to 77 MiB, against 70 MiB at idle                                      |
+| So why does it look like one?             | The _live_ working set under load exceeds **494 MiB**, and RSS never returns to the OS afterwards                        |
+| What happens on a small container?        | With `--max-old-space-size=512`, a **30-second** ingest burst OOM-kills the server                                       |
+| Can reviewers work while reports pour in? | Yes to ~200 reports/s (p99 ~24 ms). At 400/s the console hits a **5.2 s p99** and **25 jobs/min** — a cliff, not a slope |
+| Cheapest single win                       | One import line: **66 MiB RSS, 25 MiB heap, 150 ms boot**, measured end to end                                           |
 
 The headline is not that any one thing is huge. It is that Coop pays a large
-fixed cost before serving a request, and that its ingest path has no bound on
-in-flight work, so memory tracks whatever the slowest downstream is doing.
+fixed cost before serving a request, and that nothing bounds its ingest path —
+so under load it takes whatever it needs, and the interactive path pays for it.
 
 ## Phase 1 — baseline
 
@@ -313,6 +314,112 @@ That memory is genuinely retained: two forced GCs leave the JS heap at 3.1 MiB
 but RSS unchanged at 97.9 MiB, because the cost is V8's compiled code and module
 metadata, which is never returned to the OS.
 
+## Phase 3 — does it degrade gracefully?
+
+The operational question behind all of this: **as report volume scales up, can
+reviewers still work jobs?** Reviewers and the ingest API share one process and
+one database pool, so this is an isolation question, not a throughput one.
+
+`perf/bin/contention.mjs` runs both workloads against one server at once:
+
+- **reviewers** — a sequential `dequeueManualReviewJob` → `submitManualReviewDecision`
+  loop, i.e. what a human working the review console actually does.
+- **ingest** — `POST /report/` injected open-loop at a fixed rate, stepped
+  upward, so "report volume" is expressed in reports/second rather than in
+  client concurrency.
+
+Method: production-style server, dev stack stopped, Scylla restarted and the
+review queue drained before each run, 60 s per step, one virtual reviewer with
+no think time. Both runs below logged **zero** Scylla timeouts, so nothing here
+is the Scylla saturation from Phase 2.
+
+### Result: graceful to ~200 reports/s, then a cliff
+
+With the pool sizes in `server/.env.example` (`DATABASE_POOL_MAX=5`,
+`DATABASE_READ_POOL_MAX=10`):
+
+| reports/s | achieved | reviewer jobs/min | dequeue p99   | decide p99 | queue depth |
+| --------- | -------- | ----------------- | ------------- | ---------- | ----------- |
+| 100       | 99.6     | 3543              | 19.5 ms       | 20.6 ms    | 24,453      |
+| 200       | 199.0    | 3129              | 23.8 ms       | 21.0 ms    | 33,259      |
+| 400       | 325.7    | **25**            | **5251 ms**   | 5008 ms    | 51,197      |
+| 800       | 178.6    | **26**            | **11,749 ms** | 9016 ms    | 61,712      |
+
+Up to 200 reports/s the review console is unaffected — p99 around 20 ms, over
+3,000 jobs/min. Past that it does not degrade, it **falls over**: a 2× increase
+in report volume costs 125× reviewer throughput and 220× dequeue latency. At a
+5-second p99 the console is unusable.
+
+Note that ingest itself also goes backwards — 800 reports/s offered yields _less_
+accepted throughput (178/s) than 400 offered (326/s). The system is past its
+knee and losing ground.
+
+### The lever is the Postgres pool, not memory
+
+Re-running identically with a larger pool (`20`/`60`, still within the compose
+Postgres' `max_connections = 100`):
+
+| reports/s | achieved | reviewer jobs/min | dequeue p99 | decide p99 |
+| --------- | -------- | ----------------- | ----------- | ---------- |
+| 100       | 99.6     | 4188              | 13.2 ms     | 13.0 ms    |
+| 200       | 199.2    | 3001              | 28.2 ms     | 25.6 ms    |
+| 400       | 389.2    | **684**           | **416 ms**  | 312 ms     |
+| 800       | 359.2    | 114               | 4540 ms     | 3119 ms    |
+
+At 400 reports/s, four extra pooled connections buy **27× reviewer throughput**
+(25 → 684 jobs/min) and **12.6× lower dequeue p99** (5251 → 416 ms). Server RSS
+was essentially identical between the two runs (674 vs 618 MiB peak), so this is
+connection contention, not memory.
+
+The cliff moves but does not disappear: even at 20/60, reviewer p99 goes 28 ms →
+416 ms → 4.5 s across a 4× load increase. Raising the pool buys headroom, not
+isolation — the two workloads still compete for one resource.
+
+### Why ingest consumes pool so fast
+
+Every authenticated API request runs **two** Postgres queries in
+`ApiKeyService.validateApiKey`
+([`server/services/apiKeyService/apiKeyService.ts:127`](../../server/services/apiKeyService/apiKeyService.ts)):
+a `SELECT` on the key hash, then an `UPDATE ... SET last_used_at = now()`.
+There is no caching, so ingest occupies pool connections at twice its request
+rate, and the write lands on **one row** — every concurrent request contends for
+the same row lock, and each fires the table's `BEFORE UPDATE` trigger.
+
+Confirmed in `pg_stat_user_tables` after this session: **216,742 updates against
+a 5-row table**. (The 207,425 sequential scans on the same table are _not_ a
+missing index — `key_hash` is indexed twice over; the planner simply prefers a
+scan at 5 rows.)
+
+Caching validation for a few seconds, and writing `last_used_at` on a sampled or
+batched basis rather than per request, would cut ingest's pool consumption by
+roughly half and remove the single-row serialization point.
+
+### Infrastructure failures are reported to clients as 401
+
+[`server/utils/apiKeyMiddleware.ts`](../../server/utils/apiKeyMiddleware.ts)
+wraps validation in `try { ... } catch { orgId = null }`, and a null org becomes
+`401 Invalid API Key`. A pool-acquisition timeout, a query timeout, or a
+Postgres blip is therefore reported to the caller as bad credentials.
+
+This showed up only in the runs where the system was already struggling (222,
+981 and 1,746 occurrences in the degraded runs; zero in the two clean runs
+above), which is exactly the pattern the code predicts. It is the worst possible
+status code for the situation: 401 is a permanent client error, so well-behaved
+clients will not retry — they will page someone about a broken API key while the
+real problem is a busy database. A `503` with `Retry-After` is the correct
+signal.
+
+### Two smaller observations
+
+- **Backlog is unbounded and invisible to the submitter.** Queue depth reached
+  61,712 jobs with no shedding, no warning and no change in the `201` returned
+  to the reporting client. Reviewers cannot consume 200 reports/s, so a real
+  deployment accumulates backlog indefinitely; nothing in the API surface says so.
+- **An idle reviewer waits 5 seconds for "no jobs".** `dequeueManualReviewJob`
+  uses BullMQ's `getNextJob`, whose blocking pop honours the default 5 s
+  `drainDelay`, so on an empty queue the console's "next job" action takes ~5 s
+  to return nothing. Measured: 5016 ms p50 against an empty queue.
+
 ## Findings, ranked
 
 Ranked by measured saving against how invasive the fix is. "Measured" means
@@ -334,6 +441,34 @@ under ~1 GiB. Options, roughly in increasing order of effort:
 - Shed load (503) rather than accepting work the process cannot hold.
 - Until one of those lands, document a minimum memory requirement for the API
   container, because the current answer is "more than you would guess".
+
+### 1b. Ingest starves the review console past ~200 reports/s · design change · **measured**
+
+The same lack of bounds, seen from the reviewer's side. At 400 reports/s the
+review console goes from a 24 ms p99 to a 5.2 s p99 and from 3,100 to 25
+jobs/min. Reviewers and ingest share one Postgres pool with no reservation
+between them, so ingest starves the interactive path. Fixes compose with #1 —
+bounding in-flight ingest work is what stops it monopolising connections — plus
+either a separate pool for interactive traffic or admission control that
+prioritises it.
+
+### 1c. `validateApiKey` does two queries and a single-row `UPDATE` per request · small · **measured**
+
+216,742 updates against a 5-row `api_keys` table in one session. Every
+authenticated request re-reads the key and rewrites `last_used_at` on the same
+row, doubling ingest's pool consumption and serialising concurrent requests on
+one row lock plus a `BEFORE UPDATE` trigger. Cache validation for a few seconds
+and sample or batch the `last_used_at` write. Cheapest meaningful win on the
+ingest path.
+
+### 1d. Infrastructure failures are returned as `401 Invalid API Key` · small · **measured**
+
+`apiKeyMiddleware` catches every validation error and turns it into a 401, so a
+pool timeout or database blip tells the caller its credentials are bad.
+Observed 222–1,746 times per run when the system was struggling, zero when
+healthy. 401 is permanent, so clients will not retry and operators chase a
+credentials problem that does not exist. Return `503` with `Retry-After` for
+infrastructure failures and reserve 401 for keys that genuinely do not validate.
 
 ### 2. `date-fns` barrel import — 66 MiB RSS, 25 MiB heap, 150 ms boot · one line (×2) · **measured**
 

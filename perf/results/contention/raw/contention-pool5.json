@@ -1,0 +1,193 @@
+{
+  "startedAt": "2026-09-16T22:10:14.437Z",
+  "config": {
+    "steps": [
+      100,
+      200,
+      400,
+      800
+    ],
+    "stepSeconds": 60,
+    "reviewerCount": 1,
+    "thinkMs": 0,
+    "maxInflight": 600
+  },
+  "steps": [
+    {
+      "targetReportsPerSec": 100,
+      "durationS": 60,
+      "reviewer": {
+        "jobsCompleted": 3543,
+        "jobsPerMin": 3542.8,
+        "dequeueMs": {
+          "p50": 7.4,
+          "p95": 13.2,
+          "p99": 19.5,
+          "max": 686.7
+        },
+        "decideMs": {
+          "p50": 7.2,
+          "p95": 12.9,
+          "p99": 20.6,
+          "max": 364
+        },
+        "emptyDequeues": 0,
+        "errors": {}
+      },
+      "ingest": {
+        "attempted": 5976,
+        "accepted": 5976,
+        "achievedPerSec": 99.6,
+        "reportMs": {
+          "p50": 10.7,
+          "p95": 55.5,
+          "p99": 268.4
+        },
+        "errors": {}
+      },
+      "queueDepth": {
+        "first": 22020,
+        "last": 24453,
+        "max": 24453
+      },
+      "serverRssMib": {
+        "first": 333,
+        "last": 481,
+        "max": 511
+      }
+    },
+    {
+      "targetReportsPerSec": 200,
+      "durationS": 60,
+      "reviewer": {
+        "jobsCompleted": 3129,
+        "jobsPerMin": 3128.9,
+        "dequeueMs": {
+          "p50": 9,
+          "p95": 15.8,
+          "p99": 23.8,
+          "max": 105.4
+        },
+        "decideMs": {
+          "p50": 8.6,
+          "p95": 14.6,
+          "p99": 21,
+          "max": 49.1
+        },
+        "emptyDequeues": 0,
+        "errors": {}
+      },
+      "ingest": {
+        "attempted": 11944,
+        "accepted": 11940,
+        "achievedPerSec": 199,
+        "reportMs": {
+          "p50": 14.6,
+          "p95": 24.9,
+          "p99": 37.9
+        },
+        "errors": {}
+      },
+      "queueDepth": {
+        "first": 24452,
+        "last": 33259,
+        "max": 33259
+      },
+      "serverRssMib": {
+        "first": 429,
+        "last": 407,
+        "max": 429
+      }
+    },
+    {
+      "targetReportsPerSec": 400,
+      "durationS": 60,
+      "reviewer": {
+        "jobsCompleted": 25,
+        "jobsPerMin": 25,
+        "dequeueMs": {
+          "p50": 109.1,
+          "p95": 5006.7,
+          "p99": 5251.4,
+          "max": 5251.4
+        },
+        "decideMs": {
+          "p50": 65.6,
+          "p95": 4654.8,
+          "p99": 5007.7,
+          "max": 5007.7
+        },
+        "emptyDequeues": 0,
+        "errors": {}
+      },
+      "ingest": {
+        "attempted": 20138,
+        "accepted": 19543,
+        "achievedPerSec": 325.7,
+        "reportMs": {
+          "p50": 1547.7,
+          "p95": 2663.7,
+          "p99": 3274.1
+        },
+        "errors": {
+          "skipped:generator-inflight-cap": 3694
+        }
+      },
+      "queueDepth": {
+        "first": 33264,
+        "last": 51197,
+        "max": 51197
+      },
+      "serverRssMib": {
+        "first": 408,
+        "last": 643,
+        "max": 645
+      }
+    },
+    {
+      "targetReportsPerSec": 800,
+      "durationS": 60,
+      "reviewer": {
+        "jobsCompleted": 26,
+        "jobsPerMin": 26,
+        "dequeueMs": {
+          "p50": 13.4,
+          "p95": 8589.7,
+          "p99": 11749.1,
+          "max": 11749.1
+        },
+        "decideMs": {
+          "p50": 11.7,
+          "p95": 4354.7,
+          "p99": 9016.4,
+          "max": 9016.4
+        },
+        "emptyDequeues": 0,
+        "errors": {}
+      },
+      "ingest": {
+        "attempted": 10722,
+        "accepted": 10721,
+        "achievedPerSec": 178.6,
+        "reportMs": {
+          "p50": 1958.2,
+          "p95": 10480.5,
+          "p99": 12272.9
+        },
+        "errors": {
+          "skipped:generator-inflight-cap": 36062
+        }
+      },
+      "queueDepth": {
+        "first": 53339,
+        "last": 61712,
+        "max": 61712
+      },
+      "serverRssMib": {
+        "first": 647,
+        "last": 671,
+        "max": 671
+      }
+    }
+  ]
+}

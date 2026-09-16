@@ -127,16 +127,74 @@ if (!userItemType) {
   );
 }
 
+// A manual review queue, so the reviewer workload has somewhere to dequeue
+// from. The first queue an org creates becomes its default queue, and reports
+// that match no routing rule fall through to the default — so creating one
+// queue is enough to make `POST /report/` produce reviewable jobs.
+const userId = login.body.data.login.user.id;
+const existingQueues = await gql(
+  `query Org($id: ID!) {
+     org(id: $id) {
+       mrtQueues { id name isDefaultQueue isAppealsQueue }
+     }
+   }`,
+  { id: orgId },
+  cookie,
+);
+
+let queue = (existingQueues.body.data.org.mrtQueues ?? []).find(
+  (it) => it.isDefaultQueue && !it.isAppealsQueue,
+);
+
+if (!queue) {
+  const queueName = `PerfQueue-${Date.now()}`;
+  await gql(
+    `mutation CreateQueue($input: CreateManualReviewQueueInput!) {
+       createManualReviewQueue(input: $input) {
+         __typename
+         ... on MutateManualReviewQueueSuccessResponse {
+           data { id name isDefaultQueue }
+         }
+       }
+     }`,
+    {
+      input: {
+        name: queueName,
+        description: 'Queue used by the perf harness',
+        userIds: [userId],
+        hiddenActionIds: [],
+        isAppealsQueue: false,
+        autoCloseJobs: false,
+      },
+    },
+    cookie,
+  );
+  const after = await gql(
+    `query Org($id: ID!) {
+       org(id: $id) {
+         mrtQueues { id name isDefaultQueue isAppealsQueue }
+       }
+     }`,
+    { id: orgId },
+    cookie,
+  );
+  queue = after.body.data.org.mrtQueues.find((it) => it.name === queueName);
+  if (!queue) throw new Error(`Queue ${queueName} not found after creation`);
+}
+
 const fixtures = {
   createdAt: new Date().toISOString(),
   baseUrl,
   cookie,
   orgId,
+  userId,
   apiKey: apiKey ?? null,
   itemTypeId: itemType.id,
   itemTypeVersion: itemType.version,
   itemTypeName: itemType.name,
   userItemTypeId: userItemType.id,
+  queueId: queue.id,
+  queueIsDefault: queue.isDefaultQueue,
 };
 
 fs.mkdirSync(path.dirname(out), { recursive: true });

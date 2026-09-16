@@ -1,0 +1,2 @@
+{"message":"Integrations: config=/home/coder/coop/server/integrations.config.json, loaded=4 (GOOGLE_CONTENT_SAFETY_API, OPEN_AI, ZENTROPI, COOP_INTEGRATION_EXAMPLE)"}
+{"message":"Server is running at http://localhost:8080"}
