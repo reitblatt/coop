@@ -15,16 +15,17 @@ Raw artifacts for every run quoted below are under `perf/results/`.
 
 ## The short version
 
-| question                                  | answer                                                                                                                   |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Full local stack at rest                  | **~1.6 GiB** — 1175 MiB containers + ~300 MiB API server + ~145 MiB worker                                               |
-| The dev loop on top of that               | **~1.3 GiB steady, 2.5 GiB peak** of Node processes                                                                      |
-| Under ingest load                         | API server reaches **1.45 GiB**, containers **3.7 GiB**                                                                  |
-| Is there a memory leak?                   | **No.** After the backlog drains the heap returns to 77 MiB, against 70 MiB at idle                                      |
-| So why does it look like one?             | The _live_ working set under load exceeds **494 MiB**, and RSS never returns to the OS afterwards                        |
-| What happens on a small container?        | With `--max-old-space-size=512`, a **30-second** ingest burst OOM-kills the server                                       |
-| Can reviewers work while reports pour in? | Yes to ~200 reports/s (p99 ~24 ms). At 400/s the console hits a **5.2 s p99** and **25 jobs/min** — a cliff, not a slope |
-| Cheapest single win                       | One import line: **66 MiB RSS, 25 MiB heap, 150 ms boot**, measured end to end                                           |
+| question                                  | answer                                                                                                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Full local stack at rest                  | **~1.6 GiB** — 1175 MiB containers + ~300 MiB API server + ~145 MiB worker                                                                        |
+| The dev loop on top of that               | **~1.3 GiB steady, 2.5 GiB peak** of Node processes                                                                                               |
+| Under ingest load                         | API server reaches **1.45 GiB**, containers **3.7 GiB**                                                                                           |
+| Is there a memory leak?                   | **No.** After the backlog drains the heap returns to 77 MiB, against 70 MiB at idle                                                               |
+| So why does it look like one?             | The _live_ working set under load exceeds **494 MiB**, and RSS never returns to the OS afterwards                                                 |
+| What happens on a small container?        | With `--max-old-space-size=512`, a **30-second** ingest burst OOM-kills the server                                                                |
+| Can reviewers work while reports pour in? | Yes to ~200 reports/s (p99 ~24 ms). At 400/s the console hits a **5.2 s p99** and **25 jobs/min** — a cliff, not a slope                          |
+| Are orgs isolated from each other?        | **Data: yes** (8 cross-tenant probes, 0 leaks). **Performance: no** — a neighbour at 800 reports/s costs another org 95% of its review throughput |
+| Cheapest single win                       | One import line: **66 MiB RSS, 25 MiB heap, 150 ms boot**, measured end to end                                                                    |
 
 The headline is not that any one thing is huge. It is that Coop pays a large
 fixed cost before serving a request, and that nothing bounds its ingest path —
@@ -420,6 +421,91 @@ signal.
   `drainDelay`, so on an empty queue the console's "next job" action takes ~5 s
   to return nothing. Measured: 5016 ms p50 against an empty queue.
 
+## Phase 4 — multi-tenancy isolation
+
+Tenancy is at the org level. Two questions, with opposite answers.
+
+### Data isolation holds
+
+`perf/bin/tenant-isolation.mjs` provisions a second org and, using **only tenant
+B's** session cookie and API key, attempts to reach tenant A's data. Eight
+probes, plus two controls that must succeed against B's own ids — without those
+controls, a probe that fails for an unrelated reason (a wrong field name, a
+missing input field) would masquerade as an isolation pass.
+
+| probe                                  | result                                                        |
+| -------------------------------------- | ------------------------------------------------------------- |
+| `org(id: A)`                           | `UNAUTHENTICATED`                                             |
+| `itemType(id: A)`                      | `null`                                                        |
+| `manualReviewQueue(id: A)`             | `null`                                                        |
+| `dequeueManualReviewJob(queueId: A)`   | `QueueDoesNotExistError`                                      |
+| `itemTypes(identifiers: A)`            | `[]`                                                          |
+| `getExistingJobsForItem(A item)`       | `[]`                                                          |
+| `POST /items/async/` with A's `typeId` | `400` — "no Item Type created by your organization with ID …" |
+| `POST /report/` with A's `typeId`      | `400` — same                                                  |
+| CONTROL: B reads its own org and queue | both succeed                                                  |
+
+**Zero leaks.** Every surface is org-scoped, and the queue probe is careful not
+even to confirm that A's queue exists. Worth keeping the controls in mind: on
+the first run three of these probes failed GraphQL _validation_ rather than
+authorization, and would have been reported as passes. The published result is
+from the corrected run where all eight reach a resolver.
+
+One cosmetic note: `org(id: A)` returns `UNAUTHENTICATED` rather than a
+not-found, even though the caller is authenticated — it just is not authenticated
+_for that org_. Harmless, but confusing to debug.
+
+### Performance isolation does not exist
+
+There is no inbound rate limiting, no per-org quota and no admission control
+anywhere in the server — confirmed by grep, not just by measurement. So one
+tenant's traffic is free to consume the whole process.
+
+`perf/bin/noisy-neighbour.mjs` quantifies it. Tenant B (the victim) holds a
+**constant** workload for the entire run — one reviewer working jobs plus a
+steady 10 reports/s. Tenant A ramps report volume in steps. Because B's own load
+never changes, every movement in B's numbers is caused by A. Clean run, pool
+20/60, zero Scylla timeouts:
+
+| A's reports/s | A achieved | B jobs/min | B dequeue p50 | B dequeue p99 | B decide p99 | B's own report p99 |
+| ------------- | ---------- | ---------- | ------------- | ------------- | ------------ | ------------------ |
+| 0 (baseline)  | —          | 591        | 6.4 ms        | 11.3 ms       | 10.7 ms      | 12.7 ms            |
+| 100           | 99.2       | 596        | 6.7 ms        | 12.1 ms       | 12.0 ms      | 12.5 ms            |
+| 400           | 382.5      | 412        | 25 ms         | **616 ms**    | 523 ms       | 1733 ms            |
+| 800           | 369.8      | **31**     | 265 ms        | **5027 ms**   | 4452 ms      | 2355 ms            |
+
+Against B's own baseline:
+
+| A's reports/s | B dequeue p99 | B decide p99 | B throughput |
+| ------------- | ------------- | ------------ | ------------ |
+| 100           | 1.1×          | 1.1×         | 1.0×         |
+| 400           | **54.5×**     | 48.9×        | 0.7×         |
+| 800           | **444.9×**    | 416×         | **0.1×**     |
+
+At 800 reports/s from a neighbour, tenant B loses **95% of its review
+throughput** (591 → 31 jobs/min) and its console latency degrades **445×** — for
+a tenant whose own traffic never changed. B's ingest API is collateral damage
+too: its report p99 goes from 12.7 ms to 2.4 s.
+
+The mechanism is the one from Phase 3: both tenants share a single Postgres pool
+with no per-org reservation, and the ingest path has no bound on what it takes.
+Nothing about this is specific to reports — any org-scoped write path would do
+it.
+
+Below ~100 reports/s a neighbour is invisible (1.1×), so this is not a
+"multi-tenancy is broken" story so much as "there is no mechanism, and the
+headroom is whatever the hardware gives you". A single busy tenant is enough to
+make the product unusable for everyone else on the instance.
+
+### Caveats
+
+Single API process, so a multi-replica deployment spreads the blast radius —
+but tenants still share Postgres and Redis, so the mechanism survives
+horizontal scaling; only the per-replica damage changes. One reviewer on one
+session, 60 s steps, and the aggressor's achieved rate plateaued at ~370–380/s,
+so the 800 row is "as hard as one client could push", which is itself the
+interesting number.
+
 ## Findings, ranked
 
 Ranked by measured saving against how invasive the fix is. "Measured" means
@@ -469,6 +555,21 @@ Observed 222–1,746 times per run when the system was struggling, zero when
 healthy. 401 is permanent, so clients will not retry and operators chase a
 credentials problem that does not exist. Return `503` with `Retry-After` for
 infrastructure failures and reserve 401 for keys that genuinely do not validate.
+
+### 1e. No per-tenant admission control: one org can make the product unusable for others · design change · **measured**
+
+There is no inbound rate limiting, per-org quota or admission control in the
+server. A tenant holding a constant workload lost **95% of its review
+throughput** and saw **445× worse console latency** purely because a _different_
+org ramped to 800 reports/s. Data isolation is sound; performance isolation does
+not exist as a concept in the code.
+
+The mechanism is shared-pool contention (#1b), so the fixes overlap: bound
+in-flight ingest work, then add a per-org budget — a token bucket per org on the
+write paths, a separate pool or connection reservation for interactive traffic,
+or both. Until then, a single busy tenant is a denial of service against every
+other tenant on the instance, and self-hosters running one org per instance are
+the only configuration that is safe by construction.
 
 ### 2. `date-fns` barrel import — 66 MiB RSS, 25 MiB heap, 150 ms boot · one line (×2) · **measured**
 

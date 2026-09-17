@@ -1,0 +1,68 @@
+{
+  "victimOrg": "a37c743ab7b",
+  "attackerOrg": "4d5ed9c88db",
+  "leaks": 0,
+  "controlsFailed": 0,
+  "results": [
+    {
+      "name": "org(id: A)",
+      "detail": "B's session reads A's org record",
+      "verdict": "ok",
+      "response": "{\"status\":200,\"data\":{\"org\":null},\"errors\":[{\"message\":\"Authenticated user required\",\"locations\":[{\"line\":1,\"column\":21}],\"path\":[\"org\"],\"extensions\":{\"code\":\"UNAUTHENTICATED\",\"stacktrace\":[\"GraphQLError: Authenticated user required\",\"    at unauthenticatedError (file:///home/coder/coop/server/trans"
+    },
+    {
+      "name": "itemType(id: A)",
+      "detail": "B's session reads A's item type schema",
+      "verdict": "ok",
+      "response": "{\"status\":200,\"data\":{\"itemType\":null}}"
+    },
+    {
+      "name": "manualReviewQueue(id: A)",
+      "detail": "B's session reads A's review queue",
+      "verdict": "ok",
+      "response": "{\"status\":200,\"data\":{\"manualReviewQueue\":null}}"
+    },
+    {
+      "name": "dequeueManualReviewJob(queueId: A)",
+      "detail": "B dequeues a job out of A's queue — would expose reported user content",
+      "verdict": "ok",
+      "response": "{\"status\":200,\"data\":{\"dequeueManualReviewJob\":null},\"errors\":[{\"locations\":[{\"line\":2,\"column\":10}],\"path\":[\"dequeueManualReviewJob\"],\"extensions\":{\"status\":400,\"type\":[\"/errors/invalid-user-input\"],\"name\":\"QueueDoesNotExistError\",\"shouldErrorSpan\":true,\"code\":\"BAD_USER_INPUT\"},\"message\":\"The queue"
+    },
+    {
+      "name": "itemTypes(identifiers: A)",
+      "detail": "B's session resolves A's item type by identifier",
+      "verdict": "ok",
+      "response": "{\"status\":200,\"data\":{\"itemTypes\":[]}}"
+    },
+    {
+      "name": "getExistingJobsForItem(A item)",
+      "detail": "B's session looks up review jobs for one of A's items",
+      "verdict": "ok",
+      "response": "{\"status\":200,\"data\":{\"getExistingJobsForItem\":[]}}"
+    },
+    {
+      "name": "POST /items/async/ with A typeId",
+      "detail": "B's API key writes an item into A's item type",
+      "verdict": "ok",
+      "response": "{\"status\":400,\"text\":\"{\\\"errors\\\":[{\\\"status\\\":400,\\\"type\\\":[\\\"/errors/data-invalid-for-item-type\\\",\\\"/errors/invalid-user-input\\\"],\\\"title\\\":\\\"We could not find an Item Type created by your organization with ID: 8b3851fd8c1\\\",\\\"pointer\\\":\\\"/items/0\\\"}]}\"}"
+    },
+    {
+      "name": "POST /report/ with A typeId",
+      "detail": "B's API key files a report against A's item type",
+      "verdict": "ok",
+      "response": "{\"status\":400,\"text\":\"{\\\"errors\\\":[{\\\"status\\\":400,\\\"type\\\":[\\\"/errors/data-invalid-for-item-type\\\",\\\"/errors/invalid-user-input\\\"],\\\"title\\\":\\\"We could not find an Item Type created by your organization with ID: 8b3851fd8c1\\\"}]}\"}"
+    },
+    {
+      "name": "CONTROL org(id: B)",
+      "detail": "B reads its own org — must succeed, else the probes above prove nothing",
+      "verdict": "LEAK",
+      "response": "{\"status\":200,\"data\":{\"org\":{\"name\":\"Perf Tenant B\",\"mrtQueues\":[{\"id\":\"92e22710-b2b7-11f1-8e2f-c1e6018320dd\",\"name\":\"PerfQueue-1789663693817\"}]}}}"
+    },
+    {
+      "name": "CONTROL manualReviewQueue(id: B)",
+      "detail": "B reads its own queue — must succeed",
+      "verdict": "LEAK",
+      "response": "{\"status\":200,\"data\":{\"manualReviewQueue\":{\"id\":\"92e22710-b2b7-11f1-8e2f-c1e6018320dd\",\"name\":\"PerfQueue-1789663693817\",\"pendingJobCount\":0}}}"
+    }
+  ]
+}

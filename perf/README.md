@@ -113,6 +113,44 @@ perf/bin/footprint.sh
 node perf/bin/contention.mjs --steps 100,200,400,800 --step-s 60 --server-pid <pid>
 ```
 
+## Multi-tenancy tests
+
+Both need a second org. Create one (a distinct `--website`, which is unique per
+org) and provision its fixtures to a separate file:
+
+```bash
+npm run create-org -- --name "Perf Tenant B" --email tenantb@example.com \
+  --website https://tenant-b.example.com --firstName Tenant --lastName Bee \
+  --password "$COOP_PERF_PASSWORD"
+node perf/bin/setup-fixtures.mjs --email tenantb@example.com \
+  --password "$COOP_PERF_PASSWORD" --api-key <key> --out perf/results/fixtures-b.json
+```
+
+**Data isolation** — with tenant B's credentials only, try to reach tenant A's
+data. Exits non-zero on a leak, so it works as a check:
+
+```bash
+node perf/bin/tenant-isolation.mjs \
+  --victim perf/results/fixtures.json --attacker perf/results/fixtures-b.json
+```
+
+Every probe is paired with a control against B's own ids. That matters: a probe
+that fails GraphQL _validation_ (wrong field name, missing input field) never
+reaches a resolver and would otherwise be scored as an isolation pass. If a
+control fails, fix the probes before believing the result.
+
+**Performance isolation (noisy neighbour)** — tenant B holds a constant
+workload while tenant A ramps ingest, so any movement in B's numbers is A's
+fault:
+
+```bash
+node perf/bin/noisy-neighbour.mjs --steps 0,100,400,800 --step-s 60 \
+  --victim-reports 10 --server-pid <pid>
+```
+
+The first step is 0 from the aggressor, i.e. the victim's own baseline, and the
+output reports the victim's degradation as a multiple of it.
+
 ## The contention test
 
 `contention.mjs` answers a different question from `run.sh`: not "how much does

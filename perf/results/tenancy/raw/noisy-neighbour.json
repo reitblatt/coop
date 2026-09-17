@@ -1,0 +1,153 @@
+{
+  "victimOrg": "4d5ed9c88db",
+  "aggressorOrg": "a37c743ab7b",
+  "config": {
+    "stepRates": [
+      0,
+      100,
+      400,
+      800
+    ],
+    "stepSeconds": 60,
+    "victimReportsPerSec": 10,
+    "maxInflight": 600
+  },
+  "steps": [
+    {
+      "aggressorReportsPerSec": 0,
+      "durationS": 60,
+      "victim": {
+        "jobsCompleted": 591,
+        "jobsPerMin": 591,
+        "dequeueMs": {
+          "p50": 6.4,
+          "p95": 9.8,
+          "p99": 11.3
+        },
+        "decideMs": {
+          "p50": 6.3,
+          "p95": 8.6,
+          "p99": 10.7
+        },
+        "reportMs": {
+          "p50": 9.2,
+          "p99": 12.7
+        },
+        "reportsAccepted": 593,
+        "reportsAttempted": 593,
+        "emptyDequeues": 254,
+        "errors": {}
+      },
+      "aggressor": {
+        "attempted": 0,
+        "accepted": 0,
+        "achievedPerSec": 0,
+        "errors": {}
+      },
+      "serverRssMib": 338
+    },
+    {
+      "aggressorReportsPerSec": 100,
+      "durationS": 60,
+      "victim": {
+        "jobsCompleted": 596,
+        "jobsPerMin": 596,
+        "dequeueMs": {
+          "p50": 6.7,
+          "p95": 9.7,
+          "p99": 12.1
+        },
+        "decideMs": {
+          "p50": 6.7,
+          "p95": 9,
+          "p99": 12
+        },
+        "reportMs": {
+          "p50": 7.7,
+          "p99": 12.5
+        },
+        "reportsAccepted": 596,
+        "reportsAttempted": 596,
+        "emptyDequeues": 252,
+        "errors": {}
+      },
+      "aggressor": {
+        "attempted": 5956,
+        "accepted": 5954,
+        "achievedPerSec": 99.2,
+        "errors": {}
+      },
+      "serverRssMib": 522
+    },
+    {
+      "aggressorReportsPerSec": 400,
+      "durationS": 60,
+      "victim": {
+        "jobsCompleted": 412,
+        "jobsPerMin": 412,
+        "dequeueMs": {
+          "p50": 25,
+          "p95": 94.2,
+          "p99": 615.6
+        },
+        "decideMs": {
+          "p50": 22.9,
+          "p95": 85.5,
+          "p99": 522.8
+        },
+        "reportMs": {
+          "p50": 46.2,
+          "p99": 1733.1
+        },
+        "reportsAccepted": 577,
+        "reportsAttempted": 591,
+        "emptyDequeues": 58,
+        "errors": {}
+      },
+      "aggressor": {
+        "attempted": 23527,
+        "accepted": 22952,
+        "achievedPerSec": 382.5,
+        "errors": {
+          "skipped:generator-inflight-cap": 297
+        }
+      },
+      "serverRssMib": 538
+    },
+    {
+      "aggressorReportsPerSec": 800,
+      "durationS": 60,
+      "victim": {
+        "jobsCompleted": 31,
+        "jobsPerMin": 31,
+        "dequeueMs": {
+          "p50": 265,
+          "p95": 4432.4,
+          "p99": 5027.2
+        },
+        "decideMs": {
+          "p50": 168.9,
+          "p95": 3954.9,
+          "p99": 4451.7
+        },
+        "reportMs": {
+          "p50": 1504.3,
+          "p99": 2355.4
+        },
+        "reportsAccepted": 537,
+        "reportsAttempted": 537,
+        "emptyDequeues": 0,
+        "errors": {}
+      },
+      "aggressor": {
+        "attempted": 22203,
+        "accepted": 22194,
+        "achievedPerSec": 369.8,
+        "errors": {
+          "skipped:generator-inflight-cap": 25349
+        }
+      },
+      "serverRssMib": 671
+    }
+  ]
+}
