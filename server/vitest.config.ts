@@ -19,6 +19,7 @@ export default defineConfig({
       'transpiled/**',
       'e2e/**',
       '**/*.integ.test.ts',
+      '**/*.live.test.ts',
     ],
     coverage: {
       provider: 'v8',

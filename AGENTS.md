@@ -98,6 +98,10 @@ docker compose run --rm --build test
 
 # Client unit tests (no Docker)
 (cd client && npm test)
+
+# Live third-party API tests (*.live.test.ts; need real credentials, see
+# server/test/live/README.md)
+(cd server && npm run test:live)
 ```
 
 Lint / format / type-check (no Docker needed):
