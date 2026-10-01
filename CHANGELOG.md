@@ -8,6 +8,10 @@ For more information about each release including git tags and artifacts, see [R
 
 ## [Unreleased]
 
+### Fixed
+
+- Zentropi Labeler signal failing on every call; labeler versions now require a labeler ID ([#TBD](https://github.com/roostorg/coop/pull/TBD) by [@reitblatt](https://github.com/reitblatt))
+
 ## [1.1.1] - 2026-10-01
 
 ### Security
