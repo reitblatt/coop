@@ -13,12 +13,14 @@ on:
       - 'server/test/live/**'
       - 'server/vitest.live.config.ts'
       - '.github/workflows/live_api_checks.yaml'
+      - 'server/services/signalsService/signals/third_party_signals/zentropi/**'
   pull_request:
     paths:
       - 'server/**/*.live.test.ts'
       - 'server/test/live/**'
       - 'server/vitest.live.config.ts'
       - '.github/workflows/live_api_checks.yaml'
+      - 'server/services/signalsService/signals/third_party_signals/zentropi/**'
 
 permissions:
   contents: read
@@ -57,4 +59,8 @@ jobs:
 
       - name: Run live API tests
         working-directory: server
+        env:
+          ZENTROPI_API_KEY: ${{ secrets.ZENTROPI_API_KEY }}
+          ZENTROPI_TEST_LABELER_ID: ${{ vars.ZENTROPI_TEST_LABELER_ID }}
+          ZENTROPI_TEST_LABELER_VERSION_ID: ${{ vars.ZENTROPI_TEST_LABELER_VERSION_ID }}
         run: npm run test:live
