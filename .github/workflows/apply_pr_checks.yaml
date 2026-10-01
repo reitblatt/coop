@@ -212,6 +212,12 @@ jobs:
       - name: Lint
         run: docker compose run --rm --quiet-pull backend npm run lint
 
+      # The build below uses tsconfig.build.json, which excludes test files,
+      # and vitest strips types without checking them, so this is the only
+      # step that type-checks server tests.
+      - name: Type-check (including tests)
+        run: docker compose run --rm --quiet-pull backend npm run typecheck
+
       - name: Build server
         run: docker compose run --rm --quiet-pull backend npm run build
 
