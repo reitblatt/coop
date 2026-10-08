@@ -32,6 +32,7 @@ import {
   type LeafCondition,
   type TaggedItemData,
 } from '../services/moderationConfigService/index.js';
+import { type ReportContextRuleField } from '../services/reportingService/index.js';
 import {
   isSignalErrorResult,
   type SignalOutputType,
@@ -360,12 +361,51 @@ export async function getSignalInputValueOrValues(
           ? { type: ScalarTypes.STRING, value: ruleInput.sourceType }
           : undefined;
       }
+      const reportContextField = reportContextFieldForCoopInput(
+        conditionInput.name,
+      );
+      if (reportContextField) {
+        // As with policy ids, no values at all is returned as `undefined` so
+        // that it can be tested with the IS_NOT_PROVIDED comparator.
+        const values =
+          'reportContextValues' in ruleInput
+            ? (ruleInput.reportContextValues?.[reportContextField] ?? [])
+            : [];
+        return values.length > 0
+          ? values.map((value) => ({ type: ScalarTypes.STRING, value }))
+          : undefined;
+      }
       return isFullSubmission(ruleInput)
         ? extractContentValueOrValues(ruleInput, conditionInput)
         : undefined;
     }
     default:
       assertUnreachable(conditionInput);
+  }
+}
+
+function reportContextFieldForCoopInput(
+  coopInput: CoopInput,
+): ReportContextRuleField | undefined {
+  switch (coopInput) {
+    case CoopInput.REPORT_SURFACE:
+      return 'surface';
+    case CoopInput.REPORT_CLIENT_NAME:
+      return 'clientName';
+    case CoopInput.REPORT_CLIENT_VERSION:
+      return 'clientVersion';
+    case CoopInput.REPORT_CLIENT_PLATFORM:
+      return 'clientPlatform';
+    case CoopInput.ALL_TEXT:
+    case CoopInput.ANY_IMAGE:
+    case CoopInput.ANY_GEOHASH:
+    case CoopInput.ANY_VIDEO:
+    case CoopInput.AUTHOR_USER:
+    case CoopInput.POLICY_ID:
+    case CoopInput.SOURCE:
+      return undefined;
+    default:
+      return assertUnreachable(coopInput);
   }
 }
 
@@ -421,69 +461,75 @@ export function extractContentValueOrValues(
         ? undefined
         : getFieldValueOrValues(data, matchingField);
 
-    case 'CONTENT_COOP_INPUT': {
-      const coopInput = inputSpecifier.name;
-      switch (coopInput) {
-        case CoopInput.AUTHOR_USER:
-          return submission.creator
-            ? {
-                type: ScalarTypes.USER_ID,
-                value: {
-                  id: submission.creator.id,
-                  typeId: submission.creator.typeId,
-                },
-              }
-            : undefined;
-
-        case CoopInput.ALL_TEXT: {
-          const textFields = schemaFields.filter(
-            (it) => getScalarType(it) === ScalarTypes.STRING,
-          );
-          return !textFields.length
-            ? undefined
-            : {
-                type: ScalarTypes.STRING,
-                value: getValuesFromFields(data, textFields)
-                  .map((it) => it.value)
-                  .join(' '),
-              };
-        }
-
-        case CoopInput.ANY_IMAGE:
-          return getValuesFromFields(
-            data,
-            schemaFields.filter(
-              (it) => getScalarType(it) === ScalarTypes.IMAGE,
-            ),
-          );
-
-        case CoopInput.ANY_GEOHASH:
-          return getValuesFromFields(
-            data,
-            schemaFields.filter(
-              (it) => getScalarType(it) === ScalarTypes.GEOHASH,
-            ),
-          );
-
-        case CoopInput.ANY_VIDEO:
-          return getValuesFromFields(
-            data,
-            schemaFields.filter(
-              (it) => getScalarType(it) === ScalarTypes.VIDEO,
-            ),
-          );
-
-        case CoopInput.POLICY_ID:
-        case CoopInput.SOURCE:
-          // Policy IDs are extracted from RuleInput, not the ItemSubmission
-          return undefined;
-        default:
-          assertUnreachable(coopInput);
-      }
-    }
+    case 'CONTENT_COOP_INPUT':
+      return extractCoopInputValueOrValues(submission, inputSpecifier.name);
 
     default:
       assertUnreachable(inputSpecifier);
+  }
+}
+
+function extractCoopInputValueOrValues(
+  submission: ItemSubmission,
+  coopInput: CoopInput,
+): TaggedScalar<ScalarType> | TaggedScalar<ScalarType>[] | undefined {
+  const { data, itemType } = submission;
+  const { schema: schemaFields } = itemType;
+
+  switch (coopInput) {
+    case CoopInput.AUTHOR_USER:
+      return submission.creator
+        ? {
+            type: ScalarTypes.USER_ID,
+            value: {
+              id: submission.creator.id,
+              typeId: submission.creator.typeId,
+            },
+          }
+        : undefined;
+
+    case CoopInput.ALL_TEXT: {
+      const textFields = schemaFields.filter(
+        (it) => getScalarType(it) === ScalarTypes.STRING,
+      );
+      return !textFields.length
+        ? undefined
+        : {
+            type: ScalarTypes.STRING,
+            value: getValuesFromFields(data, textFields)
+              .map((it) => it.value)
+              .join(' '),
+          };
+    }
+
+    case CoopInput.ANY_IMAGE:
+      return getValuesFromFields(
+        data,
+        schemaFields.filter((it) => getScalarType(it) === ScalarTypes.IMAGE),
+      );
+
+    case CoopInput.ANY_GEOHASH:
+      return getValuesFromFields(
+        data,
+        schemaFields.filter((it) => getScalarType(it) === ScalarTypes.GEOHASH),
+      );
+
+    case CoopInput.ANY_VIDEO:
+      return getValuesFromFields(
+        data,
+        schemaFields.filter((it) => getScalarType(it) === ScalarTypes.VIDEO),
+      );
+
+    case CoopInput.POLICY_ID:
+    case CoopInput.SOURCE:
+    case CoopInput.REPORT_SURFACE:
+    case CoopInput.REPORT_CLIENT_NAME:
+    case CoopInput.REPORT_CLIENT_VERSION:
+    case CoopInput.REPORT_CLIENT_PLATFORM:
+      // These are extracted from RuleInput, not the ItemSubmission
+      return undefined;
+    default:
+      assertUnreachable(coopInput);
   }
 }
 

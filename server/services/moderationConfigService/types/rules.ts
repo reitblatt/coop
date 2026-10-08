@@ -117,6 +117,10 @@ export const CoopInput = {
   AUTHOR_USER: 'Content author (user)' as const,
   POLICY_ID: 'Relevant Policy' as const,
   SOURCE: 'Source' as const,
+  REPORT_SURFACE: 'Report surface' as const,
+  REPORT_CLIENT_NAME: 'Report client name' as const,
+  REPORT_CLIENT_VERSION: 'Report client version' as const,
+  REPORT_CLIENT_PLATFORM: 'Report client platform' as const,
 };
 export type CoopInput = (typeof CoopInput)[keyof typeof CoopInput];
 

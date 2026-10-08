@@ -21,6 +21,7 @@ import {
   type ItemType,
 } from '../services/moderationConfigService/index.js';
 import { type TransientRunSignalWithCache } from '../services/orgAwareSignalExecutionService/index.js';
+import { type ReportContextValues } from '../services/reportingService/index.js';
 import { type SignalId } from '../services/signalsService/index.js';
 import { instantiateOpaqueType } from '../utils/typescript-types.js';
 
@@ -32,6 +33,9 @@ export type RuleInput =
   | (ItemSubmission & {
       policyIds?: string[];
       sourceType?: RuleExecutionSourceType | ActionExecutionSourceType;
+      // Only present in routing rules; the report context values across the
+      // reports on the incoming job.
+      reportContextValues?: ReportContextValues;
     })
   | ReadonlyDeep<{
       itemId: string;

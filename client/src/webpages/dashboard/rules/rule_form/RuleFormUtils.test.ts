@@ -6,10 +6,13 @@ import {
   GQLSignal,
   GQLSignalPricingStructureType,
   GQLSignalType,
+  GQLValueComparator,
 } from '../../../../graphql/generated';
+import { CoopInput } from '../../types/enums';
 import { RuleFormConditionSet, RuleFormLeafCondition } from '../types';
 import {
   getConditionInputScalarType,
+  isConditionComplete,
   removeConditionSet,
   shouldConditionPromptForComparatorAndThreshold,
 } from './RuleFormUtils';
@@ -126,6 +129,63 @@ describe('Test Rule Form Utils', () => {
       expect(shouldConditionPromptForComparatorAndThreshold(condition)).toEqual(
         true,
       );
+    });
+  });
+
+  describe('Test comparator-only coop inputs', () => {
+    const reportSurfaceCondition: RuleFormLeafCondition = {
+      input: {
+        type: 'CONTENT_COOP_INPUT',
+        name: CoopInput.REPORT_SURFACE,
+      },
+      // String inputs have text signals available, but these inputs are
+      // compared directly against a value instead.
+      eligibleSignals: [sampleSignal],
+    };
+
+    it('prompts for comparator and threshold without a signal', () => {
+      expect(
+        shouldConditionPromptForComparatorAndThreshold(reportSurfaceCondition),
+      ).toEqual(true);
+    });
+
+    it('is complete with a comparator and value but no signal', () => {
+      expect(isConditionComplete(reportSurfaceCondition)).toEqual(false);
+      expect(
+        isConditionComplete({
+          ...reportSurfaceCondition,
+          comparator: GQLValueComparator.Equals,
+          threshold: 'profile',
+        }),
+      ).toEqual(true);
+    });
+
+    it('still treats the creation source input the same way', () => {
+      const sourceCondition: RuleFormLeafCondition = {
+        ...reportSurfaceCondition,
+        input: { type: 'CONTENT_COOP_INPUT', name: CoopInput.SOURCE },
+      };
+      expect(
+        shouldConditionPromptForComparatorAndThreshold(sourceCondition),
+      ).toEqual(true);
+      expect(
+        isConditionComplete({
+          ...sourceCondition,
+          comparator: GQLValueComparator.Equals,
+          threshold: 'post-actions',
+        }),
+      ).toEqual(true);
+    });
+
+    it('still requires a signal for other string coop inputs', () => {
+      expect(
+        isConditionComplete({
+          input: { type: 'CONTENT_COOP_INPUT', name: CoopInput.ALL_TEXT },
+          eligibleSignals: [sampleSignal],
+          comparator: GQLValueComparator.Equals,
+          threshold: 'x',
+        }),
+      ).toEqual(false);
     });
   });
 

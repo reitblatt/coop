@@ -40,6 +40,10 @@ import { type RuleExecutionCorrelationId } from '../../analyticsLoggers/ruleExec
 import { type ItemSubmission } from '../../itemProcessingService/index.js';
 import { itemSubmissionWithTypeIdentifierToItemSubmission } from '../../itemProcessingService/makeItemSubmissionWithTypeIdentifier.js';
 import { type ConditionSet } from '../../moderationConfigService/index.js';
+import {
+  getReportContextValues,
+  type ReportContextValues,
+} from '../../reportingService/index.js';
 import { type ManualReviewToolServicePg } from '../dbTypes.js';
 import { type ManualReviewJobPayload } from '../manualReviewToolService.js';
 import type QueueOperations from './QueueOperations.js';
@@ -472,6 +476,7 @@ export default class JobRouting {
     routingRules: readonly ReadonlyObjectDeep<RoutingRule>[];
     itemSubmission: ItemSubmission;
     policyIds: string[];
+    reportContextValues: ReportContextValues;
     correlationId: RuleExecutionCorrelationId | ActionExecutionCorrelationId;
     mrtJobKind: ManualReviewJobPayload['kind'];
   }): Promise<string | null> {
@@ -481,13 +486,19 @@ export default class JobRouting {
       correlationId,
       mrtJobKind,
       policyIds,
+      reportContextValues,
     } = opts;
 
     const sourceType = getSourceType(correlationId);
 
     const evaluationContext = this.ruleEvaluator.makeRuleExecutionContext({
       orgId: itemSubmission.itemType.orgId,
-      input: { ...itemSubmission, policyIds, sourceType },
+      input: {
+        ...itemSubmission,
+        policyIds,
+        sourceType,
+        reportContextValues,
+      },
     });
 
     const isApplicableRule = (
@@ -571,10 +582,19 @@ export default class JobRouting {
       type,
     );
 
+    const reportContextValues = getReportContextValues(
+      'reportHistory' in payload
+        ? payload.reportHistory.flatMap((it) =>
+            it.context ? [it.context] : [],
+          )
+        : [],
+    );
+
     const destinationQueueId = await this.#runRoutingRules({
       routingRules,
       itemSubmission,
       policyIds,
+      reportContextValues,
       correlationId,
       mrtJobKind: payload.kind,
     });

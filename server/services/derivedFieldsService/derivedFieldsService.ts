@@ -213,6 +213,10 @@ export const makeDerivedFieldsService = inject(
                   : [];
               case CoopInput.POLICY_ID:
               case CoopInput.SOURCE:
+              case CoopInput.REPORT_SURFACE:
+              case CoopInput.REPORT_CLIENT_NAME:
+              case CoopInput.REPORT_CLIENT_VERSION:
+              case CoopInput.REPORT_CLIENT_PLATFORM:
                 return [];
               default:
                 assertUnreachable(it);
@@ -269,6 +273,10 @@ function makeCoopInputDerivedFieldSpec(
       case CoopInput.AUTHOR_USER:
       case CoopInput.POLICY_ID:
       case CoopInput.SOURCE:
+      case CoopInput.REPORT_SURFACE:
+      case CoopInput.REPORT_CLIENT_NAME:
+      case CoopInput.REPORT_CLIENT_VERSION:
+      case CoopInput.REPORT_CLIENT_PLATFORM:
         return true;
       case CoopInput.ANY_GEOHASH:
       case CoopInput.ANY_VIDEO:

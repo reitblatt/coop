@@ -20,7 +20,9 @@ import { SimplifiedConditionInput } from '../../RuleFormUtils';
 
 const { OptGroup } = Select;
 
-const COOP_INPUT_DESCRIPTIONS = {
+// Report context inputs are only offered in routing rules, which have their
+// own descriptions, so they're not listed here.
+const COOP_INPUT_DESCRIPTIONS: Partial<Record<CoopInput, string>> = {
   [CoopInput.ALL_TEXT]:
     "All of the content's text is extracted and " +
     'concatenated together (if there are multiple text fields), ' +

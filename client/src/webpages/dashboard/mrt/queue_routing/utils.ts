@@ -81,6 +81,10 @@ export function getNewEligibleInputs(
         : []),
       ...[aggregateInputFor(CoopInput.POLICY_ID)],
       ...[aggregateInputFor(CoopInput.SOURCE)],
+      ...[aggregateInputFor(CoopInput.REPORT_SURFACE)],
+      ...[aggregateInputFor(CoopInput.REPORT_CLIENT_NAME)],
+      ...[aggregateInputFor(CoopInput.REPORT_CLIENT_VERSION)],
+      ...[aggregateInputFor(CoopInput.REPORT_CLIENT_PLATFORM)],
       ...allDerivedFields
         .filter(
           (it): it is AggregateInputDerivedField =>
@@ -432,6 +436,10 @@ export function getInputScalarType(
         case CoopInput.POLICY_ID:
           return GQLScalarType.PolicyId;
         case CoopInput.SOURCE:
+        case CoopInput.REPORT_SURFACE:
+        case CoopInput.REPORT_CLIENT_NAME:
+        case CoopInput.REPORT_CLIENT_VERSION:
+        case CoopInput.REPORT_CLIENT_PLATFORM:
           return GQLScalarType.String;
       }
     case 'CONTENT_DERIVED_FIELD':

@@ -19,6 +19,21 @@ If `reportedForReason.csam` is `true`, the job is routed directly to the NCMEC q
 
 Reports are submitted via `POST /api/v1/report`. For the full API schema (field definitions, types, and requirements), see the [Report API](../api/report.md) reference.
 
+## Routing on report context
+
+If your integration sends [`reportContext`](../api/report.md#request-body-fields), routing rules can match on it. When adding a condition to a routing rule, choose one of these inputs:
+
+| Input                  | Matches                                      |
+| :--------------------- | :------------------------------------------- |
+| Report surface         | `reportContext.surface`, e.g. `profile`      |
+| Report client name     | `reportContext.client.name`                  |
+| Report client version  | `reportContext.client.version`, e.g. `2.3.1` |
+| Report client platform | `reportContext.client.platform`, e.g. `ios`  |
+
+Each input supports "equals", "not equal to" and "is not provided", and compares against the incoming report's context as exact, case-sensitive text. Client versions are compared as text, so a rule can match one specific version but not a range of versions. For example, to send reports made from a profile page to a dedicated queue, add a condition "Report surface equals `profile`".
+
+`reportContext.attributes` is shown to reviewers but can't be used in rules.
+
 ## Invalidating reports from a bad-faith reporter
 
 If a single user on your platform is mass-flagging non-violating content and clogging the review queue, moderators with the `EDIT_MRT_QUEUES` permission can invalidate every pending report from that reporter via the "Invalidate reports" action on any report's detail view in the Manual Review Tool.

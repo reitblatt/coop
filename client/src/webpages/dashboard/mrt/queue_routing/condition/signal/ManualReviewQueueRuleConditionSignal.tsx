@@ -8,6 +8,7 @@ import {
   ConditionLocation,
   RuleFormLeafCondition,
 } from '../../../../rules/types';
+import { isComparatorOnlyCoopInput } from '../../../../types/enums';
 import { ManualReviewQueueRoutingStaticTextField } from '../../ManualReviewQueueRoutingStaticField';
 import ManualReviewQueueRuleConditionSignalSubcategory from './ManualReviewQueueRuleConditionSignalSubcategory';
 
@@ -31,8 +32,7 @@ export default function ManualReviewQueueRuleConditionSignal(props: {
     !condition.input ||
     !eligibleSignals ||
     !Array.from(eligibleSignals.values()).flat().length ||
-    (condition.input.type === 'CONTENT_COOP_INPUT' &&
-      condition.input.name === 'Creation Source')
+    isComparatorOnlyCoopInput(condition.input)
   ) {
     // Number, Boolean and Geohash inputs don't have any eligible signals
     return null;

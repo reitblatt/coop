@@ -45,6 +45,20 @@ const COOP_INPUT_DESCRIPTIONS = {
     'The policies that were used to enqueue this job. If there are several, ' +
     'this condition will pass if any one of them matches.',
   [CoopInput.SOURCE]: 'The creation source from which this job was enqueued.',
+  [CoopInput.REPORT_SURFACE]:
+    'Where in your app the report was made, as sent in reportContext.surface. ' +
+    'Matches if any report on the incoming job has this value.',
+  [CoopInput.REPORT_CLIENT_NAME]:
+    'The app or integration the reporter used, as sent in ' +
+    'reportContext.client.name. Matches if any report on the incoming job ' +
+    'has this value.',
+  [CoopInput.REPORT_CLIENT_VERSION]:
+    'The version of the app the reporter used, as sent in ' +
+    'reportContext.client.version. Compared as exact text, not as a version ' +
+    'number.',
+  [CoopInput.REPORT_CLIENT_PLATFORM]:
+    'The platform the reporter used, as sent in reportContext.client.platform. ' +
+    'Matches if any report on the incoming job has this value.',
 };
 
 export default function ManualReviewQueueRuleConditionInput(props: {

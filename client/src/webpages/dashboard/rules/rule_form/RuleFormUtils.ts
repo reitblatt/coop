@@ -24,7 +24,7 @@ import { taggedUnionToOneOfInput } from '../../../../graphql/inputHelpers';
 import { locationAreaToLocationAreaInput } from '../../../../models/locationBank';
 import { safePick } from '../../../../utils/misc';
 import { isValidRegexString } from '../../../../utils/regex';
-import { CoopInput } from '../../types/enums';
+import { CoopInput, isComparatorOnlyCoopInput } from '../../types/enums';
 import {
   conditionHasInvalidThreshold,
   ConditionInput,
@@ -118,10 +118,7 @@ export function isConditionComplete(condition: RuleFormCondition): boolean {
     condition.eligibleSignals &&
     [...condition.eligibleSignals.values()].flat().length > 0 &&
     !condition.signal &&
-    !(
-      condition.input.type === 'CONTENT_COOP_INPUT' &&
-      condition.input.name === 'Creation Source'
-    )
+    !isComparatorOnlyCoopInput(condition.input)
   ) {
     return false;
   }
@@ -225,10 +222,7 @@ export function shouldConditionPromptForComparatorAndThreshold(
   condition: RuleFormLeafCondition,
 ) {
   const signal = condition.signal;
-  if (
-    condition.input?.type === 'CONTENT_COOP_INPUT' &&
-    condition.input.name === 'Creation Source'
-  ) {
+  if (isComparatorOnlyCoopInput(condition.input)) {
     return true;
   }
   if (!signal) {
@@ -408,6 +402,10 @@ export function getConditionInputScalarType(
     case 'CONTENT_COOP_INPUT':
       switch (input.name) {
         case CoopInput.SOURCE:
+        case CoopInput.REPORT_SURFACE:
+        case CoopInput.REPORT_CLIENT_NAME:
+        case CoopInput.REPORT_CLIENT_VERSION:
+        case CoopInput.REPORT_CLIENT_PLATFORM:
         case CoopInput.ALL_TEXT:
           return GQLScalarType.String;
         case CoopInput.ANY_IMAGE:

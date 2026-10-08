@@ -661,6 +661,10 @@ export const GQLCoopInput = {
   AnyVideo: 'ANY_VIDEO',
   AuthorUser: 'AUTHOR_USER',
   PolicyId: 'POLICY_ID',
+  ReportClientName: 'REPORT_CLIENT_NAME',
+  ReportClientPlatform: 'REPORT_CLIENT_PLATFORM',
+  ReportClientVersion: 'REPORT_CLIENT_VERSION',
+  ReportSurface: 'REPORT_SURFACE',
   Source: 'SOURCE',
 } as const;
 

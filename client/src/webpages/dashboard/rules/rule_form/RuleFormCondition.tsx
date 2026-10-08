@@ -82,6 +82,10 @@ function getInputScalarType(
     case 'CONTENT_COOP_INPUT':
       switch (input.name) {
         case CoopInput.SOURCE:
+        case CoopInput.REPORT_SURFACE:
+        case CoopInput.REPORT_CLIENT_NAME:
+        case CoopInput.REPORT_CLIENT_VERSION:
+        case CoopInput.REPORT_CLIENT_PLATFORM:
         case CoopInput.ALL_TEXT:
           return GQLScalarType.String;
         case CoopInput.ANY_IMAGE:

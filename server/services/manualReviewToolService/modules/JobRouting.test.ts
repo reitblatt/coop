@@ -1,6 +1,7 @@
 import { ScalarTypes } from '@roostorg/coop-types';
 import { uid } from 'uid';
 
+import { type Dependencies } from '../../../iocContainer/index.js';
 import createContentItemTypes from '../../../test/fixtureHelpers/createContentItemTypes.js';
 import createMrtQueue from '../../../test/fixtureHelpers/createMrtQueue.js';
 import createOrg from '../../../test/fixtureHelpers/createOrg.js';
@@ -15,6 +16,11 @@ import {
 } from '../../itemProcessingService/makeItemSubmission.js';
 import { itemSubmissionToItemSubmissionWithTypeIdentifier } from '../../itemProcessingService/makeItemSubmissionWithTypeIdentifier.js';
 import { toNormalizedItemDataOrErrors } from '../../itemProcessingService/toNormalizedItemDataOrErrors.js';
+import {
+  CoopInput,
+  type ItemType,
+} from '../../moderationConfigService/index.js';
+import { type ReportContext } from '../../reportingService/index.js';
 import { SignalType } from '../../signalsService/index.js';
 import { UserPermission } from '../../userManagementService/index.js';
 
@@ -848,4 +854,214 @@ describe('JobRouting tests', () => {
       expect(pendingJobCount).toBe(1);
     },
   );
+
+  describe('report context inputs', () => {
+    async function enqueueReportJob(opts: {
+      manualReviewToolService: Dependencies['ManualReviewToolService'];
+      orgId: string;
+      itemType: ItemType;
+      reportContexts: ReadonlyArray<ReportContext | undefined>;
+    }) {
+      const { manualReviewToolService, orgId, itemType, reportContexts } = opts;
+      const normalizedDataOrError = toNormalizedItemDataOrErrors(
+        [itemType.id],
+        itemType,
+        { text: 'nothing to match here' },
+      );
+      if (Array.isArray(normalizedDataOrError)) {
+        throw new Error('Error validating item data');
+      }
+      const itemSubmission = await submissionDataToItemSubmission(
+        async () => itemType,
+        {
+          orgId,
+          submissionId: makeSubmissionId(),
+          itemId: uid(),
+          itemTypeId: itemType.id,
+          itemTypeVersion: '',
+          itemTypeSchemaVariant: 'original',
+          data: normalizedDataOrError,
+          creatorId: null,
+          creatorTypeId: null,
+        },
+      );
+      if (itemSubmission instanceof Error) {
+        throw new Error('Error creating item submission');
+      }
+
+      await manualReviewToolService.enqueue({
+        enqueueSource: 'REPORT',
+        enqueueSourceInfo: { kind: 'REPORT' },
+        createdAt: new Date(),
+        orgId,
+        correlationId: toCorrelationId({ type: 'submit-report', id: uid() }),
+        policyIds: [],
+        payload: {
+          kind: 'DEFAULT',
+          item: itemSubmissionToItemSubmissionWithTypeIdentifier(
+            itemSubmission,
+          ),
+          reportHistory: reportContexts.map((context) => ({
+            reportId: uid(),
+            reportedAt: new Date(),
+            ...(context ? { context } : {}),
+          })),
+        },
+      });
+    }
+
+    async function createReportContextRule(opts: {
+      manualReviewToolService: Dependencies['ManualReviewToolService'];
+      orgId: string;
+      itemTypeId: string;
+      destinationQueueId: string;
+      name: CoopInput;
+      condition:
+        | { comparator: 'EQUALS'; threshold: string }
+        | { comparator: 'IS_NOT_PROVIDED' };
+    }) {
+      await opts.manualReviewToolService.createRoutingRule({
+        orgId: opts.orgId,
+        name: `${opts.name} rule`,
+        status: 'LIVE',
+        itemTypeIds: [opts.itemTypeId as NonEmptyString],
+        creatorId: '',
+        conditionSet: {
+          conjunction: 'OR',
+          conditions: [
+            {
+              input: { type: 'CONTENT_COOP_INPUT', name: opts.name },
+              ...opts.condition,
+            },
+          ],
+        },
+        destinationQueueId: opts.destinationQueueId,
+      });
+    }
+
+    jobRoutingTestWithFixtures(
+      'routes on report surface when a report on the job matches',
+      async ({
+        manualReviewToolService,
+        org,
+        itemType,
+        policyQueue,
+        defaultQueue,
+      }) => {
+        await createReportContextRule({
+          manualReviewToolService,
+          orgId: org.id,
+          itemTypeId: itemType.id,
+          destinationQueueId: policyQueue.id,
+          name: CoopInput.REPORT_SURFACE,
+          condition: { comparator: 'EQUALS', threshold: 'profile' },
+        });
+        const countIn = async (queueId: string) =>
+          manualReviewToolService.getPendingJobCount({
+            orgId: org.id,
+            queueId,
+          });
+        const initialDefault = await countIn(defaultQueue.id);
+
+        await enqueueReportJob({
+          manualReviewToolService,
+          orgId: org.id,
+          itemType,
+          reportContexts: [{ surface: 'feed' }],
+        });
+        expect(await countIn(policyQueue.id)).toBe(0);
+        expect(await countIn(defaultQueue.id)).toBe(initialDefault + 1);
+
+        // Matches if any report on the job has the value.
+        await enqueueReportJob({
+          manualReviewToolService,
+          orgId: org.id,
+          itemType,
+          reportContexts: [
+            undefined,
+            { surface: 'feed' },
+            { surface: 'profile' },
+          ],
+        });
+        expect(await countIn(policyQueue.id)).toBe(1);
+      },
+    );
+
+    jobRoutingTestWithFixtures(
+      'routes on report client name, version and platform',
+      async ({ manualReviewToolService, org, itemType, policyQueue }) => {
+        for (const [name, threshold] of [
+          [CoopInput.REPORT_CLIENT_NAME, 'Ivory'],
+          [CoopInput.REPORT_CLIENT_VERSION, '2.3.1'],
+          [CoopInput.REPORT_CLIENT_PLATFORM, 'ios'],
+        ] as const) {
+          await createReportContextRule({
+            manualReviewToolService,
+            orgId: org.id,
+            itemTypeId: itemType.id,
+            destinationQueueId: policyQueue.id,
+            name,
+            condition: { comparator: 'EQUALS', threshold },
+          });
+        }
+
+        for (const client of [
+          { name: 'Ivory' },
+          { version: '2.3.1' },
+          { platform: 'ios' },
+          { name: 'Other', version: '1.0', platform: 'web' },
+        ]) {
+          await enqueueReportJob({
+            manualReviewToolService,
+            orgId: org.id,
+            itemType,
+            reportContexts: [{ client }],
+          });
+        }
+
+        expect(
+          await manualReviewToolService.getPendingJobCount({
+            orgId: org.id,
+            queueId: policyQueue.id,
+          }),
+        ).toBe(3);
+      },
+    );
+
+    jobRoutingTestWithFixtures(
+      'treats a field no report provided as not provided',
+      async ({ manualReviewToolService, org, itemType, policyQueue }) => {
+        await createReportContextRule({
+          manualReviewToolService,
+          orgId: org.id,
+          itemTypeId: itemType.id,
+          destinationQueueId: policyQueue.id,
+          name: CoopInput.REPORT_CLIENT_PLATFORM,
+          condition: { comparator: 'IS_NOT_PROVIDED' },
+        });
+
+        // No context at all, and context without a platform, both count as
+        // not provided; a report with a platform does not.
+        for (const reportContexts of [
+          [undefined],
+          [{ surface: 'feed', client: { name: 'Ivory' } }],
+          [{ client: { platform: 'ios' } }],
+        ]) {
+          await enqueueReportJob({
+            manualReviewToolService,
+            orgId: org.id,
+            itemType,
+            reportContexts,
+          });
+        }
+
+        expect(
+          await manualReviewToolService.getPendingJobCount({
+            orgId: org.id,
+            queueId: policyQueue.id,
+          }),
+        ).toBe(2);
+      },
+    );
+  });
 });

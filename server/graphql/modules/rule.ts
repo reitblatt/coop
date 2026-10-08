@@ -263,6 +263,10 @@ const typeDefs = /* GraphQL */ `
     AUTHOR_USER
     POLICY_ID
     SOURCE
+    REPORT_SURFACE
+    REPORT_CLIENT_NAME
+    REPORT_CLIENT_VERSION
+    REPORT_CLIENT_PLATFORM
   }
 
   input ConditionMatchingValuesInput {

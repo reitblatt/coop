@@ -1,4 +1,5 @@
 import {
+  getReportContextValues,
   normalizeReportContext,
   reportContextToWarehouseColumns,
 } from './reportContext.js';
@@ -50,6 +51,33 @@ describe('reportContextToWarehouseColumns', () => {
       report_surface: 'feed',
       report_client_version: '2.3.1',
       report_context_attributes: { sessionId: 'abc' },
+    });
+  });
+});
+
+describe('getReportContextValues', () => {
+  it('returns empty arrays when there are no contexts', () => {
+    expect(getReportContextValues([])).toEqual({
+      surface: [],
+      clientName: [],
+      clientVersion: [],
+      clientPlatform: [],
+    });
+  });
+
+  it('collects distinct values per field, skipping missing ones', () => {
+    expect(
+      getReportContextValues([
+        { surface: 'feed', client: { name: 'Ivory', platform: 'ios' } },
+        { surface: 'profile', client: { name: 'Ivory' } },
+        { attributes: { arm: 'b' } },
+        { surface: 'feed', client: { version: '2.3.1' } },
+      ]),
+    ).toEqual({
+      surface: ['feed', 'profile'],
+      clientName: ['Ivory'],
+      clientVersion: ['2.3.1'],
+      clientPlatform: ['ios'],
     });
   });
 });

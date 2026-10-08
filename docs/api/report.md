@@ -114,6 +114,8 @@ All fields are optional. String values are limited to 256 characters.
 
 Send `client` from your own request body rather than forwarding an HTTP `User-Agent`: the request to Coop comes from your backend, not the reporter's app.
 
+`surface` and the `client` fields can also be used in routing rules; see [Routing on report context](../user/reports.md#routing-on-report-context).
+
 > If you use the PostgreSQL data warehouse adapter, add `report_surface`, `report_client_name`, `report_client_version`, `report_client_platform` and `report_context_attributes` (text, default `''`) to your `REPORTING_SERVICE.REPORTS` table before sending `reportContext`. ClickHouse deployments get these columns from the bundled migration.
 
 ## Response

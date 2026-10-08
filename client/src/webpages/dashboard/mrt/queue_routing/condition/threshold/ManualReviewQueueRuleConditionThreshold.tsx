@@ -19,7 +19,7 @@ import {
   ConditionLocation,
   RuleFormLeafCondition,
 } from '../../../../rules/types';
-import { CoopInput } from '../../../../types/enums';
+import { CoopInput, REPORT_CONTEXT_COOP_INPUTS } from '../../../../types/enums';
 import { ManualReviewQueueRoutingStaticTextField } from '../../ManualReviewQueueRoutingStaticField';
 import { RoutingRuleItemType } from '../../types';
 import { getInputScalarType } from '../../utils';
@@ -68,6 +68,10 @@ export default function ManualReviewQueueRuleConditionThreshold(props: {
     condition.input?.type === 'CONTENT_COOP_INPUT' &&
     condition.input.name === CoopInput.SOURCE;
 
+  const renderTextThreshold =
+    condition.input?.type === 'CONTENT_COOP_INPUT' &&
+    REPORT_CONTEXT_COOP_INPUTS.includes(condition.input.name ?? '');
+
   const booleanThreshold = (
     <Select
       key={`RuleFormCondition-boolean-threshold-select_set_index_${conditionSetIndex}_index_${conditionIndex}`}
@@ -115,6 +119,16 @@ export default function ManualReviewQueueRuleConditionThreshold(props: {
           <span />
         )
       }
+      onChange={(event) => onUpdateThreshold(event.target.value)}
+    />
+  );
+
+  const textThreshold = (
+    <Input
+      key={`RuleFormCondition-text-threshold-input_set_index_${conditionSetIndex}_index_${conditionIndex}`}
+      value={condition.threshold}
+      placeholder="Enter a value"
+      className="rounded-lg"
       onChange={(event) => onUpdateThreshold(event.target.value)}
     />
   );
@@ -219,7 +233,9 @@ export default function ManualReviewQueueRuleConditionThreshold(props: {
               ? 'Policy'
               : renderStringThreshold
                 ? 'Creation Source'
-                : 'Threshold'}
+                : renderTextThreshold
+                  ? 'Value'
+                  : 'Threshold'}
         </div>
         {!editing ? (
           <ManualReviewQueueRoutingStaticTextField
@@ -239,6 +255,8 @@ export default function ManualReviewQueueRuleConditionThreshold(props: {
           policyThreshold
         ) : renderStringThreshold ? (
           sourceTypeThreshold()
+        ) : renderTextThreshold ? (
+          textThreshold
         ) : (
           defaultThreshold
         )}
@@ -249,7 +267,9 @@ export default function ManualReviewQueueRuleConditionThreshold(props: {
               ? 'Policy'
               : renderStringThreshold
                 ? 'Creation Source'
-                : 'Threshold'}
+                : renderTextThreshold
+                  ? 'Value'
+                  : 'Threshold'}
         </div>
       </div>
     </div>

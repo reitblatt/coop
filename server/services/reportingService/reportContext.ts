@@ -1,3 +1,5 @@
+import { assertUnreachable } from '../../utils/misc.js';
+
 /**
  * Optional context about where a report came from, supplied by the integrator
  * on `POST /api/v1/report`.
@@ -119,5 +121,59 @@ export function reportContextToWarehouseColumns(
     ...(client?.version ? { report_client_version: client.version } : {}),
     ...(client?.platform ? { report_client_platform: client.platform } : {}),
     ...(attributes ? { report_context_attributes: attributes } : {}),
+  };
+}
+
+/**
+ * The report context fields that routing rules can match on. The names match
+ * the field roles an org-defined report context schema would use, so that
+ * this lookup can later resolve through those roles without changing the
+ * rules that use it.
+ */
+export type ReportContextRuleField =
+  'surface' | 'clientName' | 'clientVersion' | 'clientPlatform';
+
+/**
+ * The distinct values of each rule field across the given report contexts
+ * (one per report on a job). Reports that didn't provide a field are skipped,
+ * so a field no report provided maps to an empty array.
+ */
+export type ReportContextValues = Record<
+  ReportContextRuleField,
+  readonly string[]
+>;
+
+export function getReportContextValues(
+  contexts: readonly ReportContext[],
+): ReportContextValues {
+  const valueOf = (context: ReportContext, field: ReportContextRuleField) => {
+    switch (field) {
+      case 'surface':
+        return context.surface;
+      case 'clientName':
+        return context.client?.name;
+      case 'clientVersion':
+        return context.client?.version;
+      case 'clientPlatform':
+        return context.client?.platform;
+      default:
+        return assertUnreachable(field);
+    }
+  };
+
+  const distinctValues = (field: ReportContextRuleField) => [
+    ...new Set(
+      contexts.flatMap((context) => {
+        const value = valueOf(context, field);
+        return value ? [value] : [];
+      }),
+    ),
+  ];
+
+  return {
+    surface: distinctValues('surface'),
+    clientName: distinctValues('clientName'),
+    clientVersion: distinctValues('clientVersion'),
+    clientPlatform: distinctValues('clientPlatform'),
   };
 }

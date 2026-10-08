@@ -10,10 +10,13 @@ export {
 } from './reportingService.js';
 
 export {
+  getReportContextValues,
   normalizeReportContext,
   reportContextSchema,
   type ReportContext,
   type ReportContextInput,
+  type ReportContextRuleField,
+  type ReportContextValues,
 } from './reportContext.js';
 
 export type ReportingServiceErrorType = ReportingRuleErrorType;
