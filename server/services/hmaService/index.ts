@@ -264,6 +264,14 @@ export class HmaService {
     this.hashBankService = new HashBankService(kyselyPg);
   }
 
+  /**
+   * HMA counts as enabled only when a deployment sets HMA_SERVICE_URL. Without
+   * it the URL falls back to a localhost default that nothing listens on.
+   */
+  isEnabled(): boolean {
+    return Boolean(process.env.HMA_SERVICE_URL);
+  }
+
   private getHmaName(orgId: string, name: string): string {
     // Convert to uppercase and replace spaces and special characters with underscores
     const normalizedName = name

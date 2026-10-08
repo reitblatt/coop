@@ -67,6 +67,13 @@ function toGraphQLError(e: unknown): unknown {
 }
 
 const Query: GQLQueryResolvers<Context> = {
+  hashBanksEnabled(_: unknown, __: unknown, context: Context) {
+    if (!context.getUser()) {
+      throw unauthenticatedError('User required.');
+    }
+    return context.services.HMAHashBankService.isEnabled();
+  },
+
   async hashBanks(_: unknown, __: unknown, context: Context) {
     const user = context.getUser();
     if (!user?.orgId) {

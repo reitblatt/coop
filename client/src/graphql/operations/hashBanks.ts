@@ -1,5 +1,11 @@
 import { gql } from '@apollo/client';
 
+export const HASH_BANKS_ENABLED_QUERY = gql`
+  query HashBanksEnabled {
+    hashBanksEnabled
+  }
+`;
+
 export const HASH_BANKS_QUERY = gql`
   query HashBanks {
     hashBanks {

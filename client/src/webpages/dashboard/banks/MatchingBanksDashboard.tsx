@@ -1,4 +1,8 @@
-import { GQLUserPermission, useGQLPermissionsQuery } from '@/graphql/generated';
+import {
+  GQLUserPermission,
+  useGQLHashBanksEnabledQuery,
+  useGQLPermissionsQuery,
+} from '@/graphql/generated';
 import { userHasPermissions } from '@/routing/permissions';
 import { Hash, Type, Globe as World2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -19,7 +23,11 @@ type MatchingBanksDashboardTab = (typeof MatchingBanksDashboardTabs)[number];
 export default function MatchingBanksDashboard() {
   const [searchParams] = useSearchParams();
   const kindInSearchParams = searchParams.get('kind');
-  const [selectedTab, setSelectedTab] = useState<MatchingBanksDashboardTab>(
+  const { data: hashBanksEnabledData } = useGQLHashBanksEnabledQuery();
+  // Hash banks are backed by HMA, so hide them unless it's configured. Stay
+  // visible while loading so a hash bank link doesn't flash to another tab.
+  const hashBanksEnabled = hashBanksEnabledData?.hashBanksEnabled ?? true;
+  const [requestedTab, setSelectedTab] = useState<MatchingBanksDashboardTab>(
     kindInSearchParams &&
       MatchingBanksDashboardTabs.includes(
         kindInSearchParams as MatchingBanksDashboardTab,
@@ -27,6 +35,8 @@ export default function MatchingBanksDashboard() {
       ? (kindInSearchParams as MatchingBanksDashboardTab)
       : 'TEXT',
   );
+  const selectedTab =
+    requestedTab === 'HASH' && !hashBanksEnabled ? 'TEXT' : requestedTab;
   const [canEditBanks, setCanEditBanks] = useState(true);
   const { data } = useGQLPermissionsQuery();
 
@@ -73,11 +83,15 @@ export default function MatchingBanksDashboard() {
       />
       <TabBar
         tabs={[
-          {
-            label: 'Hash Banks',
-            icon: <Hash />,
-            value: 'HASH',
-          },
+          ...(hashBanksEnabled
+            ? [
+                {
+                  label: 'Hash Banks',
+                  icon: <Hash />,
+                  value: 'HASH' as const,
+                },
+              ]
+            : []),
           {
             label: 'Text Banks',
             icon: <Type />,

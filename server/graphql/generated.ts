@@ -3632,6 +3632,8 @@ export type GQLQuery = {
   readonly hashBank?: Maybe<GQLHashBank>;
   readonly hashBankById?: Maybe<GQLHashBank>;
   readonly hashBanks: ReadonlyArray<GQLHashBank>;
+  /** Whether HMA is configured for this deployment. Hash banks need it. */
+  readonly hashBanksEnabled: Scalars['Boolean']['output'];
   readonly integrationConfig: GQLIntegrationConfigQueryResponse;
   readonly inviteUserToken: GQLInviteUserTokenResponse;
   readonly isWarehouseAvailable: Scalars['Boolean']['output'];
@@ -12903,6 +12905,11 @@ export type GQLQueryResolvers<
   >;
   hashBanks?: Resolver<
     ReadonlyArray<GQLResolversTypes['HashBank']>,
+    ParentType,
+    ContextType
+  >;
+  hashBanksEnabled?: Resolver<
+    GQLResolversTypes['Boolean'],
     ParentType,
     ContextType
   >;

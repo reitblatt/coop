@@ -19,6 +19,7 @@ For more information about each release including git tags and artifacts, see [R
 
 ### Fixed
 
+- Hash banks tab shown even when HMA isn't configured; it is now hidden unless `HMA_SERVICE_URL` is set
 - Renaming a hash bank no longer discards its hashed content ([#1360](https://github.com/roostorg/coop/pull/1360) by [@juanmrad](https://github.com/juanmrad))
 - Zentropi Labeler signal failing on every call; labeler versions now require a labeler ID ([#1335](https://github.com/roostorg/coop/pull/1335) by [@reitblatt](https://github.com/reitblatt))
 - NCMEC review escalations silently succeeding when the item cannot resolve to a user ([#1331](https://github.com/roostorg/coop/pull/1331) by [@Joseph-Mutua](https://github.com/Joseph-Mutua))

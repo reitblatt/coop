@@ -195,6 +195,24 @@ async function errorText(promise: Promise<unknown>): Promise<string> {
 }
 
 describe('HmaService', () => {
+  describe('isEnabled', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it('is disabled when HMA_SERVICE_URL is unset', () => {
+      vi.stubEnv('HMA_SERVICE_URL', '');
+      const svc = new HmaService(vi.fn() as never, {} as never, makeTracer());
+      expect(svc.isEnabled()).toBe(false);
+    });
+
+    it('is enabled when HMA_SERVICE_URL is set', () => {
+      vi.stubEnv('HMA_SERVICE_URL', 'http://hma:9876');
+      const svc = new HmaService(vi.fn() as never, {} as never, makeTracer());
+      expect(svc.isEnabled()).toBe(true);
+    });
+  });
+
   describe('createBank', () => {
     it('creates a standalone bank via POST /c/banks when no exchange is provided', async () => {
       const fetchHTTP = routeFetch({

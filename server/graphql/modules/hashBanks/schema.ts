@@ -90,6 +90,8 @@ export const typeDefs = /* GraphQL */ `
     | MatchingBankNameExistsError
 
   type Query {
+    "Whether HMA is configured for this deployment. Hash banks need it."
+    hashBanksEnabled: Boolean!
     hashBanks: [HashBank!]!
     hashBank(name: String!): HashBank
     hashBankById(id: ID!): HashBank

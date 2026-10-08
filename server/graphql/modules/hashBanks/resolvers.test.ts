@@ -51,6 +51,15 @@ async function errorText(promise: Promise<unknown>): Promise<string> {
 }
 
 describe('hashBanks resolvers', () => {
+  describe('Query.hashBanksEnabled', () => {
+    it.each([true, false])('reports whether HMA is enabled (%s)', (enabled) => {
+      const ctx = makeContext({ isEnabled: vi.fn().mockReturnValue(enabled) });
+      expect((resolvers.Query as any).hashBanksEnabled({}, {}, ctx)).toBe(
+        enabled,
+      );
+    });
+  });
+
   describe('Mutation.createHashBank', () => {
     it('creates a bank without exchange', async () => {
       const ctx = makeContext();
