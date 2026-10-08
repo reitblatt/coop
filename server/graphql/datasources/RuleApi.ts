@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 
 import { type Exception } from '@opentelemetry/api';
-import { makeEnumLike } from '@roostorg/coop-types';
+import { makeEnumLike, ScalarTypes } from '@roostorg/coop-types';
 import { type Kysely } from 'kysely';
 import { type JsonObject } from 'type-fest';
 import { uid } from 'uid';
@@ -71,6 +71,7 @@ import { unauthenticatedError } from '../utils/errors.js';
 import { oneOfInputToTaggedUnion } from '../utils/inputHelpers.js';
 import { type CursorInfo, type Edge } from '../utils/paginationHandler.js';
 import { buildGraphqlRuleParent } from './buildGraphqlRuleParent.js';
+import { assertImageSignalInputsAreImages } from './imageSignalInputValidation.js';
 import { locationAreaInputToLocationArea } from './LocationBankApi.js';
 import {
   kyselyCancelRunningBacktestsForRule,
@@ -451,6 +452,10 @@ class RuleAPI {
       await this.validateSignalsAllowedInAutomatedRules(conditionSet, orgId);
     }
 
+    if (ruleType === RuleType.CONTENT) {
+      await this.validateImageSignalInputs(conditionSet, contentTypeIds, orgId);
+    }
+
     const ruleId = uid();
 
     try {
@@ -558,6 +563,10 @@ class RuleAPI {
       input.ruleType === RuleType.CONTENT ? input.contentTypeIds : undefined;
     if (contentTypeIds != null && contentTypeIds.length === 0) {
       throw makeRuleIsMissingContentTypeError({ shouldErrorSpan: true });
+    }
+
+    if (conditionSet != null && contentTypeIds != null) {
+      await this.validateImageSignalInputs(conditionSet, contentTypeIds, orgId);
     }
 
     // Validate that signals used in automated rules are allowed
@@ -886,6 +895,39 @@ class RuleAPI {
   ): Promise<{ _: boolean }> {
     throw new Error(
       'runRetroaction is temporarily disabled (TODO BACKTEST_RETROACTION: no UI / env to validate).',
+    );
+  }
+
+  /**
+   * Rejects rules that apply an image-only signal to an input that can't be an
+   * image for the rule's content types (such a rule can never match).
+   */
+  private async validateImageSignalInputs(
+    conditionSet: GQLConditionSetInput,
+    contentTypeIds: readonly string[],
+    orgId: string,
+  ): Promise<void> {
+    const itemTypes = (
+      await this.moderationConfigService.getItemTypes({ orgId })
+    ).filter((it) => contentTypeIds.includes(it.id));
+
+    await assertImageSignalInputsAreImages(
+      conditionSet,
+      itemTypes,
+      async ({ type, id }) => {
+        const signal = await this.signalsService.getSignal({
+          signalId:
+            type === 'CUSTOM'
+              ? { type: 'CUSTOM' as const, id: id as NonEmptyString }
+              : { type },
+          orgId,
+        });
+        return (
+          signal != null &&
+          signal.eligibleInputs.length === 1 &&
+          signal.eligibleInputs[0] === ScalarTypes.IMAGE
+        );
+      },
     );
   }
 

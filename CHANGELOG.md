@@ -15,6 +15,7 @@ For more information about each release including git tags and artifacts, see [R
 
 ### Changed
 
+- Rules that apply an image signal to an input that can never be an image are now rejected when saved ([#XXX](https://github.com/roostorg/coop/pull/XXX) by [@reitblatt](https://github.com/reitblatt))
 - Require HMA 1.2.0 or later ([#1360](https://github.com/roostorg/coop/pull/1360) by [@juanmrad](https://github.com/juanmrad))
 
 ### Fixed
