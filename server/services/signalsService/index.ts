@@ -24,6 +24,7 @@ export {
 export { type SignalOutputType } from './types/SignalOutputType.js';
 export {
   isSignalErrorResult,
+  getSignalInputType,
   type SignalResult,
   type SignalInput,
   type SignalInputType,

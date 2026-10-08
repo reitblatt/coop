@@ -6,6 +6,7 @@ import {
   type NonEmptyString,
 } from '../../utils/typescript-types.js';
 import { transformConditionForDB } from '../datasources/RuleApi.js';
+import { validateRuleSignalInputs } from '../datasources/ruleSignalInputValidation.js';
 import {
   type GQLMutationResolvers,
   type GQLQueryResolvers,
@@ -199,6 +200,16 @@ const Mutation: GQLMutationResolvers = {
     ) {
       throw new Error('itemTypeIds must be a non-empty array');
     }
+
+    const conditionSet = transformConditionForDB(input.conditionSet);
+    await validateRuleSignalInputs(
+      {
+        signalsService: services.SignalsService,
+        moderationConfigService: services.ModerationConfigService,
+      },
+      { orgId: user.orgId, ruleKind: 'REPORTING', conditionSet, itemTypeIds },
+    );
+
     try {
       const createRule = await services.ReportingService.createReportingRule({
         ...input,
@@ -208,7 +219,7 @@ const Mutation: GQLMutationResolvers = {
         itemTypeIds,
         actionIds,
         policyIds: [...input.policyIds],
-        conditionSet: transformConditionForDB(input.conditionSet),
+        conditionSet,
       });
       return gqlSuccessResult(
         {
@@ -251,15 +262,44 @@ const Mutation: GQLMutationResolvers = {
       return input.actionIds;
     })();
 
+    const storedConditionSet = conditionSet
+      ? transformConditionForDB(conditionSet)
+      : undefined;
+    // Archived rules aren't run, so don't make users fix them first. For
+    // anything else, check the rule as it will be after this update, falling
+    // back to the stored values for whichever of the two wasn't sent.
+    if (status !== 'ARCHIVED' && (storedConditionSet || itemTypeIds)) {
+      const stored = (
+        await services.ReportingService.getReportingRules({
+          orgId: user.orgId,
+        })
+      ).find((it) => it.id === id);
+      const effectiveConditionSet = storedConditionSet ?? stored?.conditionSet;
+      const effectiveItemTypeIds = itemTypeIds ?? stored?.itemTypeIds;
+      // If the rule doesn't exist, the update below reports that.
+      if (effectiveConditionSet && effectiveItemTypeIds) {
+        await validateRuleSignalInputs(
+          {
+            signalsService: services.SignalsService,
+            moderationConfigService: services.ModerationConfigService,
+          },
+          {
+            orgId: user.orgId,
+            ruleKind: 'REPORTING',
+            conditionSet: effectiveConditionSet,
+            itemTypeIds: effectiveItemTypeIds,
+          },
+        );
+      }
+    }
+
     try {
       const updatedRule = await services.ReportingService.updateReportingRule({
         id,
         name: name ?? undefined,
         description: description ?? undefined,
         status: status ?? undefined,
-        conditionSet: conditionSet
-          ? transformConditionForDB(conditionSet)
-          : undefined,
+        conditionSet: storedConditionSet,
         itemTypeIds,
         actionIds,
         policyIds: policyIds ?? undefined,

@@ -1,7 +1,9 @@
 export {
   getFieldDerivationCost,
+  getDerivedFieldOutputType,
   getDerivedFieldValue,
   type DerivedFieldSpec,
+  type DerivedFieldType,
   type DerivedFieldValue,
   derivedFieldTypes,
   parseDerivedFieldSpec,

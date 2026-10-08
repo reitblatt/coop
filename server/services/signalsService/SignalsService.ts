@@ -5,10 +5,9 @@ import { inject } from '../../iocContainer/utils.js';
 import { type ConsumerDirectives } from '../../lib/cache/index.js';
 import { jsonStringify } from '../../utils/encoding.js';
 import { CoopError, ErrorType, makeNotFoundError } from '../../utils/errors.js';
-import { __throw, assertUnreachable } from '../../utils/misc.js';
+import { __throw } from '../../utils/misc.js';
 import { type CollapseCases } from '../../utils/typescript-types.js';
 import { getIntegrationRegistry } from '../integrationRegistry/index.js';
-import { isTaggedItemData } from '../moderationConfigService/index.js';
 import { instantiateBuiltInSignals } from './helpers/instantiateBuiltInSignals.js';
 import { loadPluginSignals } from './helpers/loadPluginSignals.js';
 import { makeCachedCredentialGetters } from './helpers/makeCachedCredentialsGetters.js';
@@ -22,6 +21,7 @@ import {
 } from './index.js';
 import type UnusedCustomSignal from './signals/CustomSignal.js';
 import {
+  getSignalInputType,
   type SignalBase,
   type SignalDisabledInfo,
 } from './signals/SignalBase.js';
@@ -291,12 +291,7 @@ export class SignalsService {
     // with mismatched input types during condition creation. But, there are
     // some edge cases that could produce this sort of type mismatch (esp. if an
     // item type's schema evolves after the rule is created).
-    const signalInputType: SignalInputType =
-      'value' in input.value
-        ? input.value.type
-        : isTaggedItemData(input.value)
-          ? 'FULL_ITEM'
-          : assertUnreachable(input.value, 'Unknown signal input...');
+    const signalInputType = getSignalInputType(input.value);
 
     if (!signal.eligibleInputs.includes(signalInputType)) {
       throw new CoopError({

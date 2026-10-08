@@ -17,6 +17,7 @@ import {
   makeRuleIsMissingContentTypeError,
   makeRuleNameExistsError,
   parseStoredParameters,
+  RuleStatus,
   RuleType,
   validateActionParameterValues,
   type Condition,
@@ -24,7 +25,7 @@ import {
   type ConditionSet,
   type CoopInput,
   type LeafCondition,
-  type RuleStatus,
+  type PlainRuleWithLatestVersion,
 } from '../../services/moderationConfigService/index.js';
 import {
   isSignalId,
@@ -81,6 +82,7 @@ import {
   kyselyUpdateRule,
   type GraphQLBacktestParent,
 } from './ruleKyselyPersistence.js';
+import { validateRuleSignalInputs } from './ruleSignalInputValidation.js';
 import {
   kyselyUserFindByIdAndOrg,
   type GraphQLUserParent,
@@ -451,6 +453,20 @@ class RuleAPI {
       await this.validateSignalsAllowedInAutomatedRules(conditionSet, orgId);
     }
 
+    const storedConditionSet = transformConditionForDB(conditionSet);
+    await validateRuleSignalInputs(
+      {
+        signalsService: this.signalsService,
+        moderationConfigService: this.moderationConfigService,
+      },
+      {
+        orgId,
+        ruleKind: ruleType,
+        conditionSet: storedConditionSet,
+        itemTypeIds: contentTypeIds,
+      },
+    );
+
     const ruleId = uid();
 
     try {
@@ -460,7 +476,7 @@ class RuleAPI {
           name,
           description: description ?? null,
           status,
-          conditionSet: transformConditionForDB(conditionSet),
+          conditionSet: storedConditionSet,
           tags: tags.slice(),
           maxDailyActions: maxDailyActions ?? null,
           expirationTime: normalizeExpirationInput(expirationTime),
@@ -577,6 +593,16 @@ class RuleAPI {
       await this.validateSignalsAllowedInAutomatedRules(conditionSet, orgId);
     }
 
+    const storedConditionSet =
+      conditionSet != null ? transformConditionForDB(conditionSet) : undefined;
+    await this.validateUpdatedRuleSignalInputs({
+      existing,
+      orgId,
+      status,
+      conditionSet: storedConditionSet,
+      contentTypeIds,
+    });
+
     // Parameters are persisted alongside the action attachments, so updating
     // them without also setting actionIds would silently drop them.
     if (actionParameters != null && actionIds == null) {
@@ -615,10 +641,7 @@ class RuleAPI {
             orgId,
             name,
             description,
-            conditionSet:
-              conditionSet == null
-                ? undefined
-                : transformConditionForDB(conditionSet),
+            conditionSet: storedConditionSet,
             tags: tags?.slice(),
             ruleType,
             status: status ?? undefined,
@@ -652,6 +675,52 @@ class RuleAPI {
       throw new Error('Rule was updated but could not be reloaded');
     }
     return buildGraphqlRuleParent(plain, this.graphQlRuleParentDeps);
+  }
+
+  /**
+   * Checks that, after an update, every condition's signal can accept its
+   * input. This is the rule as it will be after the update, so whichever of the
+   * condition set and content types isn't being sent falls back to the stored
+   * one. Rules being retired aren't run, so those are never blocked on it.
+   */
+  private async validateUpdatedRuleSignalInputs(opts: {
+    existing: PlainRuleWithLatestVersion;
+    orgId: string;
+    status: RuleStatus | null | undefined;
+    conditionSet: ConditionSet | undefined;
+    contentTypeIds: readonly string[] | null | undefined;
+  }): Promise<void> {
+    const { existing, orgId, status, conditionSet, contentTypeIds } = opts;
+    if (
+      status === RuleStatus.ARCHIVED ||
+      status === RuleStatus.DEPRECATED ||
+      (conditionSet == null && contentTypeIds == null)
+    ) {
+      return;
+    }
+
+    await validateRuleSignalInputs(
+      {
+        signalsService: this.signalsService,
+        moderationConfigService: this.moderationConfigService,
+      },
+      {
+        orgId,
+        ruleKind: existing.ruleType,
+        conditionSet: conditionSet ?? existing.conditionSet,
+        itemTypeIds:
+          contentTypeIds ??
+          (existing.ruleType === RuleType.CONTENT
+            ? (
+                await this.moderationConfigService.getItemTypesForRule({
+                  orgId,
+                  ruleId: existing.id,
+                  readFromReplica: false,
+                })
+              ).map((it) => it.id)
+            : []),
+      },
+    );
   }
 
   async deleteRule(opts: { id: string; orgId: string }): Promise<boolean> {

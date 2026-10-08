@@ -1,3 +1,4 @@
+import { type ConditionSet } from '../../services/moderationConfigService/index.js';
 import { UserPermission } from '../../services/userManagementService/index.js';
 import { isCoopErrorOfType } from '../../utils/errors.js';
 import {
@@ -7,11 +8,13 @@ import {
   type NonEmptyString,
 } from '../../utils/typescript-types.js';
 import { transformConditionForDB } from '../datasources/RuleApi.js';
+import { validateRuleSignalInputs } from '../datasources/ruleSignalInputValidation.js';
 import {
   type GQLMutationResolvers,
   type GQLQueryResolvers,
   type GQLRoutingRuleResolvers,
 } from '../generated.js';
+import { type Context } from '../resolvers.js';
 import { forbiddenError, unauthenticatedError } from '../utils/errors.js';
 import { gqlErrorResult, gqlSuccessResult } from '../utils/gqlResult.js';
 
@@ -164,6 +167,49 @@ const RoutingRule: GQLRoutingRuleResolvers = {
   },
 };
 
+/**
+ * Checks that, after an update, every condition's signal can accept its input.
+ * This is the rule as it will be after the update, so whichever of the
+ * condition set and item types isn't being sent falls back to the stored one.
+ */
+async function validateUpdatedRoutingRule(
+  context: Context,
+  opts: {
+    id: string;
+    orgId: string;
+    conditionSet: ConditionSet | undefined;
+    itemTypeIds: readonly string[] | null | undefined;
+  },
+) {
+  const { id, orgId, conditionSet, itemTypeIds } = opts;
+  if (!conditionSet && !itemTypeIds) {
+    return;
+  }
+
+  const stored = (
+    await context.services.ManualReviewToolService.getRoutingRules({ orgId })
+  ).find((it) => it.id === id);
+  const effectiveConditionSet = conditionSet ?? stored?.conditionSet;
+  const effectiveItemTypeIds = itemTypeIds ?? stored?.itemTypeIds;
+  // If the rule doesn't exist, the update itself reports that.
+  if (!effectiveConditionSet || !effectiveItemTypeIds) {
+    return;
+  }
+
+  await validateRuleSignalInputs(
+    {
+      signalsService: context.services.SignalsService,
+      moderationConfigService: context.services.ModerationConfigService,
+    },
+    {
+      orgId,
+      ruleKind: 'ROUTING',
+      conditionSet: effectiveConditionSet,
+      itemTypeIds: effectiveItemTypeIds,
+    },
+  );
+}
+
 const Query: GQLQueryResolvers = {};
 
 const Mutation: GQLMutationResolvers = {
@@ -184,6 +230,20 @@ const Mutation: GQLMutationResolvers = {
       throw new Error('itemTypeIds must be a non-empty array');
     }
 
+    const conditionSet = transformConditionForDB(params.input.conditionSet);
+    await validateRuleSignalInputs(
+      {
+        signalsService: context.services.SignalsService,
+        moderationConfigService: context.services.ModerationConfigService,
+      },
+      {
+        orgId: user.orgId,
+        ruleKind: 'ROUTING',
+        conditionSet,
+        itemTypeIds,
+      },
+    );
+
     try {
       const routingRule =
         await context.services.ManualReviewToolService.createRoutingRule({
@@ -191,7 +251,7 @@ const Mutation: GQLMutationResolvers = {
           itemTypeIds,
           orgId: user.orgId,
           creatorId: user.id,
-          conditionSet: transformConditionForDB(params.input.conditionSet),
+          conditionSet,
           isAppealsRule: params.input.isAppealsRule ?? false,
         });
 
@@ -228,6 +288,16 @@ const Mutation: GQLMutationResolvers = {
       throw new Error('itemTypeIds must be a non-empty array');
     }
 
+    const conditionSet = params.input.conditionSet
+      ? transformConditionForDB(params.input.conditionSet)
+      : undefined;
+    await validateUpdatedRoutingRule(context, {
+      id: params.input.id,
+      orgId: user.orgId,
+      conditionSet,
+      itemTypeIds,
+    });
+
     try {
       const routingRule =
         await context.services.ManualReviewToolService.updateRoutingRule({
@@ -238,9 +308,7 @@ const Mutation: GQLMutationResolvers = {
           status: params.input.status ?? undefined,
           itemTypeIds: itemTypeIds ?? undefined,
           destinationQueueId: params.input.destinationQueueId ?? undefined,
-          conditionSet: params.input.conditionSet
-            ? transformConditionForDB(params.input.conditionSet)
-            : undefined,
+          conditionSet,
           sequenceNumber: params.input.sequenceNumber ?? undefined,
           isAppealsRule: params.input.isAppealsRule ?? false,
         });

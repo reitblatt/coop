@@ -1,9 +1,11 @@
+import { ScalarTypes } from '@roostorg/coop-types';
 import { uid } from 'uid';
 
 import createContentItemTypes from '../../test/fixtureHelpers/createContentItemTypes.js';
 import createOrg from '../../test/fixtureHelpers/createOrg.js';
 import createUser from '../../test/fixtureHelpers/createUser.js';
 import { makeTransactionalTestWithFixture } from '../../test/harness/transactionalTest.js';
+import { jsonStringify } from '../../utils/encoding.js';
 import {
   type GQLCreateContentRuleInput,
   type GQLCreateUserRuleInput,
@@ -296,4 +298,174 @@ describe('RuleAPI', () => {
       expect(plain).toBeNull();
     },
   );
+
+  describe('signal input type validation', () => {
+    const imageSignalOn = (fieldName: string, contentTypeId: string) => ({
+      conjunction: 'AND' as const,
+      conditions: [
+        {
+          input: {
+            type: 'CONTENT_FIELD' as const,
+            name: fieldName,
+            contentTypeId,
+          },
+          comparator: 'EQUALS' as const,
+          threshold: 'true',
+          signal: {
+            id: jsonStringify({ type: 'IMAGE_SIMILARITY_MATCH' }),
+            type: 'IMAGE_SIMILARITY_MATCH',
+            name: 'Image matches bank',
+          },
+        },
+      ],
+    });
+
+    const makeImageItemType = async (
+      deps: {
+        ModerationConfigService: Parameters<
+          typeof createContentItemTypes
+        >[0]['moderationConfigService'];
+      },
+      orgId: string,
+    ) =>
+      (
+        await createContentItemTypes({
+          moderationConfigService: deps.ModerationConfigService,
+          orgId,
+          extra: {
+            fields: [
+              {
+                name: 'pic',
+                type: ScalarTypes.IMAGE,
+                required: false,
+                container: null,
+              },
+            ],
+          },
+        })
+      ).itemTypes[0];
+
+    const contentRuleInput = (
+      contentTypeIds: string[],
+      conditionSet: ReturnType<typeof imageSignalOn>,
+    ) =>
+      ({
+        name: `Signal input rule ${uid()}`,
+        description: null,
+        status: 'DRAFT',
+        contentTypeIds,
+        conditionSet,
+        actionIds: [],
+        policyIds: [],
+        tags: [],
+        maxDailyActions: null,
+      }) satisfies GQLCreateContentRuleInput;
+
+    testWithRuleApiFixture(
+      'createContentRule rejects an image signal on a non-image field',
+      async ({ deps, user, org, itemTypes }) => {
+        await expect(
+          deps.RuleAPIDataSource.createContentRule(
+            contentRuleInput(
+              [itemTypes[0].id],
+              imageSignalOn('field1', itemTypes[0].id),
+            ),
+            user.id,
+            org.id,
+          ),
+        ).rejects.toMatchObject({ status: 400 });
+      },
+    );
+
+    testWithRuleApiFixture(
+      'createContentRule accepts an image signal on an image field',
+      async ({ deps, user, org }) => {
+        const imageType = await makeImageItemType(deps, org.id);
+        await expect(
+          deps.RuleAPIDataSource.createContentRule(
+            contentRuleInput(
+              [imageType.id],
+              imageSignalOn('pic', imageType.id),
+            ),
+            user.id,
+            org.id,
+          ),
+        ).resolves.toBeDefined();
+      },
+    );
+
+    testWithRuleApiFixture(
+      'updateContentRule validates the stored conditions when only the content types change',
+      async ({ deps, user, org, itemTypes }) => {
+        const imageType = await makeImageItemType(deps, org.id);
+        const rule = await deps.RuleAPIDataSource.createContentRule(
+          contentRuleInput([imageType.id], imageSignalOn('pic', imageType.id)),
+          user.id,
+          org.id,
+        );
+
+        // Moving the rule to a type with no `pic` field would orphan it.
+        await expect(
+          deps.RuleAPIDataSource.updateContentRule({
+            input: { id: rule.id, contentTypeIds: [itemTypes[0].id] },
+            orgId: org.id,
+          }),
+        ).rejects.toMatchObject({ status: 400 });
+      },
+    );
+
+    testWithRuleApiFixture(
+      'updateContentRule validates new conditions against the stored content types',
+      async ({ deps, user, org, itemTypes }) => {
+        const imageType = await makeImageItemType(deps, org.id);
+        const rule = await deps.RuleAPIDataSource.createContentRule(
+          contentRuleInput([imageType.id], imageSignalOn('pic', imageType.id)),
+          user.id,
+          org.id,
+        );
+
+        await expect(
+          deps.RuleAPIDataSource.updateContentRule({
+            input: {
+              id: rule.id,
+              conditionSet: imageSignalOn('field1', itemTypes[0].id),
+            },
+            orgId: org.id,
+          }),
+        ).rejects.toMatchObject({ status: 400 });
+      },
+    );
+
+    testWithRuleApiFixture(
+      'updateContentRule does not validate renames or archiving of a rule',
+      async ({ deps, user, org, itemTypes }) => {
+        const imageType = await makeImageItemType(deps, org.id);
+        const rule = await deps.RuleAPIDataSource.createContentRule(
+          contentRuleInput([imageType.id], imageSignalOn('pic', imageType.id)),
+          user.id,
+          org.id,
+        );
+
+        await expect(
+          deps.RuleAPIDataSource.updateContentRule({
+            input: { id: rule.id, name: `renamed ${uid()}` },
+            orgId: org.id,
+          }),
+        ).resolves.toBeDefined();
+
+        // Retiring a rule whose payload is (now) invalid is still allowed.
+        await expect(
+          deps.RuleAPIDataSource.updateContentRule({
+            input: {
+              id: rule.id,
+              status: 'ARCHIVED',
+              contentTypeIds: [itemTypes[0].id],
+              conditionSet: imageSignalOn('field1', itemTypes[0].id),
+            },
+            orgId: org.id,
+          }),
+        ).resolves.toBeDefined();
+      },
+    );
+  });
 });

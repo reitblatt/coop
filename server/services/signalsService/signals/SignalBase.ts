@@ -44,6 +44,17 @@ export function isSignalErrorResult(it: object): it is { type: 'ERROR' } {
 // interpreted.)
 export type SignalInputType = ScalarType | 'FULL_ITEM';
 
+/**
+ * The SignalInputType of a value that's about to be passed to a signal. Shared
+ * by SignalsService.runSignal (which enforces `eligibleInputs` at run time) and
+ * save-time rule validation, so that the two can't disagree.
+ */
+export function getSignalInputType(
+  value: TaggedScalar<ScalarType> | TaggedItemData,
+): SignalInputType {
+  return 'value' in value ? value.type : 'FULL_ITEM';
+}
+
 export interface ImageValue {
   url: string;
   hashes?: {
