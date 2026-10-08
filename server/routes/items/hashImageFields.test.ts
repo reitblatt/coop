@@ -19,6 +19,19 @@ const schema = [
   { name: 'cover', type: 'IMAGE', required: false, container: null },
 ] as unknown as ItemType['schema'];
 
+const imageArray = {
+  containerType: 'ARRAY',
+  keyScalarType: 'NUMBER',
+  valueScalarType: 'IMAGE',
+};
+
+const makeSchema = (fields: object[]) =>
+  fields.map((it) => ({
+    required: false,
+    container: null,
+    ...it,
+  })) as unknown as ItemType['schema'];
+
 const HMAHashBankService = {
   listBanks: vi.fn(),
   hashContentFromUrl: vi.fn(),
@@ -27,6 +40,7 @@ const HMAHashBankService = {
 
 describe('addHashesToImageFields', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     HMAHashBankService.listBanks.mockResolvedValue([
       { hma_name: 'hma_bank', name: 'Bank' },
     ]);
@@ -36,9 +50,12 @@ describe('addHashesToImageFields', () => {
     });
   });
 
-  const run = async (data: { [key: string]: unknown }) => {
+  const run = async (
+    data: { [key: string]: unknown },
+    itemSchema: ItemType['schema'] = schema,
+  ) => {
     await addHashesToImageFields({
-      itemType: { schema },
+      itemType: { schema: itemSchema },
       data,
       orgId: 'org',
       HMAHashBankService,
@@ -65,6 +82,59 @@ describe('addHashesToImageFields', () => {
       matchedBanks: ['Bank'],
     });
   });
+
+  it('hashes an array Image field named `images`', async () => {
+    const data = await run(
+      {
+        images: [
+          { url: 'https://x.test/a.png' },
+          { url: 'https://x.test/b.png' },
+        ],
+      },
+      makeSchema([{ name: 'images', type: 'ARRAY', container: imageArray }]),
+    );
+    expect(data.images).toEqual([
+      {
+        url: 'https://x.test/a.png',
+        hashes: { pdq: 'abc' },
+        matchedBanks: ['Bank'],
+      },
+      {
+        url: 'https://x.test/b.png',
+        hashes: { pdq: 'abc' },
+        matchedBanks: ['Bank'],
+      },
+    ]);
+  });
+
+  it('hashes a singular Image field not named `images`', async () => {
+    const data = await run({ cover: { url: 'https://x.test/c.png' } });
+    expect(data.cover).toEqual({
+      url: 'https://x.test/c.png',
+      hashes: { pdq: 'abc' },
+      matchedBanks: ['Bank'],
+    });
+  });
+
+  it.each([
+    ['a STRING', { name: 'images', type: 'STRING' }, 'https://x.test/a.png'],
+    [
+      'an array of STRING',
+      {
+        name: 'images',
+        type: 'ARRAY',
+        container: { ...imageArray, valueScalarType: 'STRING' },
+      },
+      ['https://x.test/a.png'],
+    ],
+  ])(
+    'does not hash a field named `images` that is %s',
+    async (_, field, value) => {
+      const data = await run({ images: value }, makeSchema([field]));
+      expect(data.images).toEqual(value);
+      expect(HMAHashBankService.hashContentFromUrl).not.toHaveBeenCalled();
+    },
+  );
 
   it('hashes every Image field and leaves other fields alone', async () => {
     const data = await run({
