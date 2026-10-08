@@ -136,6 +136,75 @@ describe('addHashesToImageFields', () => {
     },
   );
 
+  it('keeps the image with empty hashes when hashing fails', async () => {
+    HMAHashBankService.hashContentFromUrl.mockRejectedValue(new Error('boom'));
+    const data = await run({ cover: { url: 'https://x.test/c.png' } });
+    expect(data.cover).toEqual({ url: 'https://x.test/c.png', hashes: {} });
+  });
+
+  it('leaves matchedBanks undefined when no bank matches', async () => {
+    HMAHashBankService.checkImageMatchWithDetails.mockResolvedValue({
+      matchedBanks: [],
+    });
+    const data = await run({ cover: { url: 'https://x.test/c.png' } });
+    expect(data.cover).toEqual({
+      url: 'https://x.test/c.png',
+      hashes: { pdq: 'abc' },
+      matchedBanks: undefined,
+    });
+  });
+
+  it('keeps the computed hashes when the bank lookup fails', async () => {
+    HMAHashBankService.checkImageMatchWithDetails.mockRejectedValue(
+      new Error('lookup down'),
+    );
+    const data = await run({ cover: { url: 'https://x.test/c.png' } });
+    expect(data.cover).toEqual({
+      url: 'https://x.test/c.png',
+      hashes: { pdq: 'abc' },
+      matchedBanks: undefined,
+    });
+  });
+
+  it('skips the bank lookup entirely when image containers are empty', async () => {
+    await run({ profilePic: [] });
+    expect(HMAHashBankService.listBanks).not.toHaveBeenCalled();
+  });
+
+  it('hashes every value of a MAP-of-Image field', async () => {
+    const data = await run(
+      {
+        gallery: {
+          a: { url: 'https://x.test/a.png' },
+          b: { url: 'https://x.test/b.png' },
+        },
+      },
+      makeSchema([
+        {
+          name: 'gallery',
+          type: 'MAP',
+          container: {
+            containerType: 'MAP',
+            keyScalarType: 'STRING',
+            valueScalarType: 'IMAGE',
+          },
+        },
+      ]),
+    );
+    expect(data.gallery).toEqual({
+      a: {
+        url: 'https://x.test/a.png',
+        hashes: { pdq: 'abc' },
+        matchedBanks: ['Bank'],
+      },
+      b: {
+        url: 'https://x.test/b.png',
+        hashes: { pdq: 'abc' },
+        matchedBanks: ['Bank'],
+      },
+    });
+  });
+
   it('hashes every Image field and leaves other fields alone', async () => {
     const data = await run({
       text: 'hi',

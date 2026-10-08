@@ -32,7 +32,8 @@ export async function addHashesToImageFields({
 }) {
   const imageFields = itemType.schema.filter(
     (field) =>
-      getScalarType(field) === ScalarTypes.IMAGE && data[field.name] != null,
+      getScalarType(field) === ScalarTypes.IMAGE &&
+      hasImageValues(field.type, data[field.name]),
   );
   if (imageFields.length === 0) {
     return;
@@ -52,6 +53,7 @@ export async function addHashesToImageFields({
         return null;
       }
 
+      let hashes: Record<string, string>;
       try {
         const hmaHashWithRetries = await withRetries(
           {
@@ -62,11 +64,15 @@ export async function addHashesToImageFields({
           },
           async () => HMAHashBankService.hashContentFromUrl(url),
         );
-        const hashes = await hmaHashWithRetries();
+        hashes = await hmaHashWithRetries();
+      } catch (e) {
+        return { ...coercedFields, url, hashes: {} };
+      }
 
-        // Check which banks match this image
-        const matchedBankNames: string[] = [];
-
+      // Matching is best-effort: signals re-check the hashes against banks
+      // themselves, so a failed lookup must not discard the hashes we have.
+      const matchedBankNames: string[] = [];
+      try {
         if (Object.keys(hashes).length > 0 && allBankNames.length > 0) {
           const matchResults = await Promise.all(
             Object.entries(hashes).map(async ([signalType, hash]) =>
@@ -91,28 +97,34 @@ export async function addHashesToImageFields({
             }
           });
         }
-
-        return {
-          ...coercedFields,
-          url,
-          hashes,
-          matchedBanks:
-            matchedBankNames.length > 0 ? matchedBankNames : undefined,
-        };
       } catch (e) {
-        return { ...coercedFields, url, hashes: {} };
+        matchedBankNames.length = 0;
       }
+
+      return {
+        ...coercedFields,
+        url,
+        hashes,
+        matchedBanks:
+          matchedBankNames.length > 0 ? matchedBankNames : undefined,
+      };
     };
 
     for (const field of imageFields) {
       const value = data[field.name];
       if (field.type === 'ARRAY') {
-        if (Array.isArray(value) && value.length > 0) {
-          data[field.name] = await Promise.all(
-            (value as ImageValue[]).map(hashImage),
-          );
-        }
-      } else if (value != null) {
+        data[field.name] = await Promise.all(
+          (value as ImageValue[]).map(hashImage),
+        );
+      } else if (field.type === 'MAP') {
+        const entries = Object.entries(value as Record<string, ImageValue>);
+        const hashed = await Promise.all(
+          entries.map(async ([, it]) => hashImage(it)),
+        );
+        data[field.name] = Object.fromEntries(
+          entries.map(([key], i) => [key, hashed[i]]),
+        );
+      } else {
         const hashed = await hashImage(value as ImageValue);
         if (hashed) {
           data[field.name] = hashed;
@@ -123,4 +135,18 @@ export async function addHashesToImageFields({
     // eslint-disable-next-line no-console
     console.error('Failed to get HMA hashes for images:', error);
   }
+}
+
+/** Whether a field's value holds at least one image to hash. */
+function hasImageValues(fieldType: string, value: unknown) {
+  if (value == null) {
+    return false;
+  }
+  if (fieldType === 'ARRAY') {
+    return Array.isArray(value) && value.length > 0;
+  }
+  if (fieldType === 'MAP') {
+    return typeof value === 'object' && Object.keys(value).length > 0;
+  }
+  return true;
 }
