@@ -205,6 +205,56 @@ describe('addHashesToImageFields', () => {
     });
   });
 
+  it('hashes images in a MEDIA array and leaves videos unchanged', async () => {
+    const video = { url: 'https://x.test/v.mp4', mediaType: 'VIDEO' };
+    const data = await run(
+      {
+        attachments: [
+          { url: 'https://x.test/a.png', mediaType: 'IMAGE' },
+          video,
+        ],
+      },
+      makeSchema([
+        {
+          name: 'attachments',
+          type: 'ARRAY',
+          container: { ...imageArray, valueScalarType: 'MEDIA' },
+        },
+      ]),
+    );
+    expect(data.attachments).toEqual([
+      {
+        url: 'https://x.test/a.png',
+        mediaType: 'IMAGE',
+        hashes: { pdq: 'abc' },
+        matchedBanks: ['Bank'],
+      },
+      video,
+    ]);
+    expect(HMAHashBankService.hashContentFromUrl).toHaveBeenCalledTimes(1);
+  });
+
+  it('hashes a singular MEDIA field holding an image', async () => {
+    const data = await run(
+      { attachment: { url: 'https://x.test/a.png', mediaType: 'IMAGE' } },
+      makeSchema([{ name: 'attachment', type: 'MEDIA' }]),
+    );
+    expect(data.attachment).toMatchObject({
+      mediaType: 'IMAGE',
+      hashes: { pdq: 'abc' },
+    });
+  });
+
+  it('still hashes images when listing banks fails', async () => {
+    HMAHashBankService.listBanks.mockRejectedValue(new Error('db down'));
+    const data = await run({ cover: { url: 'https://x.test/c.png' } });
+    expect(data.cover).toEqual({
+      url: 'https://x.test/c.png',
+      hashes: { pdq: 'abc' },
+      matchedBanks: undefined,
+    });
+  });
+
   it('hashes every Image field and leaves other fields alone', async () => {
     const data = await run({
       text: 'hi',

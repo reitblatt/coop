@@ -12,7 +12,7 @@ type HashService = Pick<
 type ImageValue = string | { url: string; [key: string]: unknown };
 
 /**
- * Computes HMA hashes for every Image-typed field in the item's schema
+ * Computes HMA hashes for every Image- (or Media-) typed field in the item's schema
  * (singular or array, whatever the field is named) and writes them back onto
  * `data`, in the same shape the field already had, so that signals like
  * IMAGE_SIMILARITY_MATCH can read `hashes` and `matchedBanks` from the values.
@@ -32,7 +32,7 @@ export async function addHashesToImageFields({
 }) {
   const imageFields = itemType.schema.filter(
     (field) =>
-      getScalarType(field) === ScalarTypes.IMAGE &&
+      isHashableScalarType(getScalarType(field)) &&
       hasImageValues(field.type, data[field.name]),
   );
   if (imageFields.length === 0) {
@@ -40,11 +40,21 @@ export async function addHashesToImageFields({
   }
 
   try {
-    // Get all hash banks for this org once
-    const allBanks = await HMAHashBankService.listBanks(orgId);
+    // Get all hash banks for this org once. Banks only add `matchedBanks`
+    // metadata, so failing to list them must not stop us hashing the images.
+    const allBanks = await HMAHashBankService.listBanks(orgId).catch(() => []);
     const allBankNames = allBanks.map((bank) => bank.hma_name);
 
     const hashImage = async (image: ImageValue) => {
+      // MEDIA fields can also hold video/audio; only images get hashed, and
+      // everything else is returned unchanged.
+      if (
+        typeof image === 'object' &&
+        'mediaType' in image &&
+        image.mediaType !== ScalarTypes.IMAGE
+      ) {
+        return image;
+      }
       const url = typeof image === 'string' ? image : image.url;
       // Preserve any fields the coercion step already populated on the media
       // object, rather than rebuilding a fresh object that drops them.
@@ -135,6 +145,10 @@ export async function addHashesToImageFields({
     // eslint-disable-next-line no-console
     console.error('Failed to get HMA hashes for images:', error);
   }
+}
+
+function isHashableScalarType(scalarType: string) {
+  return scalarType === ScalarTypes.IMAGE || scalarType === ScalarTypes.MEDIA;
 }
 
 /** Whether a field's value holds at least one image to hash. */
