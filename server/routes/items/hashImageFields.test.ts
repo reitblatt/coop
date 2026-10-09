@@ -245,6 +245,17 @@ describe('addHashesToImageFields', () => {
     });
   });
 
+  it('hashes a MEDIA value whose mediaType could not be detected', async () => {
+    const data = await run(
+      { attachment: { url: 'https://x.test/no-extension', mediaType: null } },
+      makeSchema([{ name: 'attachment', type: 'MEDIA' }]),
+    );
+    expect(data.attachment).toMatchObject({
+      mediaType: null,
+      hashes: { pdq: 'abc' },
+    });
+  });
+
   it('still hashes images when listing banks fails', async () => {
     HMAHashBankService.listBanks.mockRejectedValue(new Error('db down'));
     const data = await run({ cover: { url: 'https://x.test/c.png' } });

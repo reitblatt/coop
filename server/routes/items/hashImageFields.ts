@@ -46,11 +46,13 @@ export async function addHashesToImageFields({
     const allBankNames = allBanks.map((bank) => bank.hma_name);
 
     const hashImage = async (image: ImageValue) => {
-      // MEDIA fields can also hold video/audio; only images get hashed, and
-      // everything else is returned unchanged.
+      // MEDIA fields can also hold video/audio, which we return unchanged.
+      // A null mediaType means the kind couldn't be inferred from the URL's
+      // extension, so we hash it and let HMA detect the content type.
       if (
         typeof image === 'object' &&
         'mediaType' in image &&
+        image.mediaType != null &&
         image.mediaType !== ScalarTypes.IMAGE
       ) {
         return image;
