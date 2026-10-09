@@ -78,13 +78,15 @@ describe('LeafCondition handling', () => {
       },
     );
 
-    // NOT_EQUAL_TO is also evaluated per value, so it passes when any value
-    // differs, not only when none of them equal the threshold.
+    // NOT_EQUAL_TO means "no value equals the threshold", so it passes only
+    // when every value differs.
     test.each([
-      [['unwanted', 'other'], ConditionCompletionOutcome.PASSED],
+      [['other', 'another'], ConditionCompletionOutcome.PASSED],
+      [['unwanted', 'other'], ConditionCompletionOutcome.FAILED],
+      [['other', 'unwanted'], ConditionCompletionOutcome.FAILED],
       [['unwanted'], ConditionCompletionOutcome.FAILED],
     ])(
-      'passes "is not equal to" when any value differs (%j)',
+      'passes "is not equal to" only when no value equals the threshold (%j)',
       async (policyIds, outcome) => {
         const res = await runLeafCondition(
           {

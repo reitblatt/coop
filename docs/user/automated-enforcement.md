@@ -15,7 +15,7 @@ Some condition inputs produce more than one value: **Any image**, **Any video** 
 - **Any image** with a signal score above 0.8 matches if at least one of the item's images scores above 0.8.
 - **Relevant Policy** _is equal to_ Harassment matches a job enqueued for Spam and Harassment.
 
-This also applies to _is not equal to_: **Relevant Policy** _is not equal to_ Spam matches a job enqueued for Spam and Harassment, because Harassment is not Spam. A condition can't currently require that _no_ value, or _every_ value, matches.
+The exception is _is not equal to_, which matches only if **no** value matches: **Relevant Policy** _is not equal to_ Spam does not match a job enqueued for Spam and Harassment. A condition can't currently require that _every_ value matches.
 
 ### Proactive Rules
 
