@@ -10,8 +10,10 @@ For more information about each release including git tags and artifacts, see [R
 
 ### Added
 
+- Eligible item types column and filtering on the Actions dashboard ([#1369](https://github.com/roostorg/coop/pull/1369) by [@taobojlen](https://github.com/taobojlen))
 - Indicator on the Appeals queue tab when appeals are pending ([#1329](https://github.com/roostorg/coop/pull/1329) by [@madheesunp](https://github.com/madheesunp))
 - Per-queue job sort order for manual review queues with support for sorting by number of reports ([#718](https://github.com/roostorg/coop/pull/718) by [@calebmcquaid](https://github.com/calebmcquaid), closes [#670](https://github.com/roostorg/coop/issues/670))
+- Org-specific signal catalogs, provider policies, and evaluation context types in `@roostorg/coop-types` (v3.0.0) ([#1384](https://github.com/roostorg/coop/pull/1384) by [@juanmrad](https://github.com/juanmrad))
 
 ### Changed
 
@@ -21,8 +23,9 @@ For more information about each release including git tags and artifacts, see [R
 
 - Image hashing now applies to every Image field in an item or report, not just an array field named `images` ([#1390](https://github.com/roostorg/coop/pull/1390) by [@reitblatt](https://github.com/reitblatt))
 - Renaming a hash bank no longer discards its hashed content ([#1360](https://github.com/roostorg/coop/pull/1360) by [@juanmrad](https://github.com/juanmrad))
-- Zentropi Labeler signal failing on every call; labeler versions now require a labeler ID ([#1335](https://github.com/roostorg/coop/pull/1335) by [@reitblatt](https://github.com/reitblatt))
+- Zentropi Labeler signal failing on every call ([#1335](https://github.com/roostorg/coop/pull/1335) by [@reitblatt](https://github.com/reitblatt), [#1388](https://github.com/roostorg/coop/pull/1388) by [@Joseph-Mutua](https://github.com/Joseph-Mutua))
 - NCMEC review escalations silently succeeding when the item cannot resolve to a user ([#1331](https://github.com/roostorg/coop/pull/1331) by [@Joseph-Mutua](https://github.com/Joseph-Mutua))
+- Rule conditions on multi-value inputs (e.g. Any image, Relevant Policy) now check every value instead of only the first ([#1389](https://github.com/roostorg/coop/pull/1389) by [@reitblatt](https://github.com/reitblatt))
 
 ### Security
 
