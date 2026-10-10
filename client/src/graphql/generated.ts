@@ -5372,7 +5372,7 @@ export type GQLZentropiLabelerVersion = {
 export type GQLZentropiLabelerVersionInput = {
   readonly id: Scalars['String']['input'];
   readonly label: Scalars['String']['input'];
-  readonly labelerId: Scalars['String']['input'];
+  readonly labelerId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type GQLApiAuthQueryVariables = Exact<{ [key: string]: never }>;
