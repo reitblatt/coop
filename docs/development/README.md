@@ -7,7 +7,7 @@ Quickly get set up with Coop for the first time for local development. For testi
 
 Deployments with additional content-access requirements can configure [content access extensions](content-access.md).
 
-This guide assumes some familiarity with the command line, e.g. using a Terminal with `bash` or `zsh`. See [Local Development](local.md) for prerequisites, configuration details, troubleshooting, and more. You may also wish to learn more about Coop's [Architecture](architecture.md).
+This guide assumes some familiarity with the command line, e.g. using a Terminal with `bash` or `zsh`. See [Local Development](local.md) for prerequisites, configuration details, troubleshooting, and more. You may also wish to learn more about Coop's [Architecture](architecture.md). To send a change back, see [Contributing](contributing.md).
 
 To get Coop running:
 

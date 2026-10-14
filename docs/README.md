@@ -21,6 +21,8 @@ If you're new to the project, we recommend you:
 - Review the [Contributing Guidelines](https://github.com/roostorg/.github/blob/main/CONTRIBUTING.md) for all ROOST projects
 - Check out the [project board](https://github.com/orgs/roostorg/projects/15) for open issues, milestones, and prioritization
 
+To submit a change, see [Contributing](development/contributing.md) in the Development Guide.
+
 Writing code is not the only way to help the project. Reviewing pull requests, answering questions, providing feedback, organizing and teaching tutorials, and improving the documentation are all priceless contributions.
 
 ### Report an issue
