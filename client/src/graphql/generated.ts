@@ -792,6 +792,7 @@ export type GQLCreateManualReviewQueueInput = {
   readonly isAppealsQueue: Scalars['Boolean']['input'];
   readonly jobSortType?: InputMaybe<GQLJobSortType>;
   readonly name: Scalars['String']['input'];
+  readonly roleIds: ReadonlyArray<Scalars['ID']['input']>;
   readonly userIds: ReadonlyArray<Scalars['ID']['input']>;
 };
 
@@ -2278,6 +2279,8 @@ export type GQLManualReviewJobWithDecisions = {
 
 export type GQLManualReviewQueue = {
   readonly __typename: 'ManualReviewQueue';
+  /** Roles whose members can review this queue, in addition to explicitly assigned reviewers. */
+  readonly assignedRoleIds: ReadonlyArray<Scalars['ID']['output']>;
   readonly autoCloseJobs: Scalars['Boolean']['output'];
   readonly clearReportsDisposition?: Maybe<GQLMrtClearReportsDisposition>;
   readonly clearReportsScope: GQLMrtClearReportsScope;
@@ -4926,6 +4929,7 @@ export type GQLUpdateManualReviewQueueInput = {
   readonly id: Scalars['ID']['input'];
   readonly jobSortType?: InputMaybe<GQLJobSortType>;
   readonly name?: InputMaybe<Scalars['String']['input']>;
+  readonly roleIds: ReadonlyArray<Scalars['ID']['input']>;
   readonly userIds: ReadonlyArray<Scalars['ID']['input']>;
 };
 
@@ -5372,7 +5376,7 @@ export type GQLZentropiLabelerVersion = {
 export type GQLZentropiLabelerVersionInput = {
   readonly id: Scalars['String']['input'];
   readonly label: Scalars['String']['input'];
-  readonly labelerId: Scalars['String']['input'];
+  readonly labelerId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type GQLApiAuthQueryVariables = Exact<{ [key: string]: never }>;
@@ -6039,6 +6043,23 @@ export type GQLActionsQuery = {
           readonly description?: string | null;
           readonly penalty: GQLUserPenaltySeverity;
           readonly applyUserStrikes?: boolean | null;
+          readonly itemTypes: ReadonlyArray<
+            | {
+                readonly __typename: 'ContentItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+            | {
+                readonly __typename: 'ThreadItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+            | {
+                readonly __typename: 'UserItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+          >;
           readonly parameters: ReadonlyArray<{
             readonly __typename: 'ActionParameter';
             readonly name: string;
@@ -6064,6 +6085,23 @@ export type GQLActionsQuery = {
           readonly description?: string | null;
           readonly penalty: GQLUserPenaltySeverity;
           readonly applyUserStrikes: boolean;
+          readonly itemTypes: ReadonlyArray<
+            | {
+                readonly __typename: 'ContentItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+            | {
+                readonly __typename: 'ThreadItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+            | {
+                readonly __typename: 'UserItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+          >;
         }
       | {
           readonly __typename: 'EnqueueToMrtAction';
@@ -6072,6 +6110,23 @@ export type GQLActionsQuery = {
           readonly description?: string | null;
           readonly penalty: GQLUserPenaltySeverity;
           readonly applyUserStrikes?: boolean | null;
+          readonly itemTypes: ReadonlyArray<
+            | {
+                readonly __typename: 'ContentItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+            | {
+                readonly __typename: 'ThreadItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+            | {
+                readonly __typename: 'UserItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+          >;
         }
       | {
           readonly __typename: 'EnqueueToNcmecAction';
@@ -6080,6 +6135,23 @@ export type GQLActionsQuery = {
           readonly description?: string | null;
           readonly penalty: GQLUserPenaltySeverity;
           readonly applyUserStrikes?: boolean | null;
+          readonly itemTypes: ReadonlyArray<
+            | {
+                readonly __typename: 'ContentItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+            | {
+                readonly __typename: 'ThreadItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+            | {
+                readonly __typename: 'UserItemType';
+                readonly id: string;
+                readonly name: string;
+              }
+          >;
         }
     >;
   } | null;
@@ -9994,6 +10066,12 @@ export type GQLQueueFormDataQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GQLQueueFormDataQuery = {
   readonly __typename: 'Query';
+  readonly rolesForOrg: ReadonlyArray<{
+    readonly __typename: 'Role';
+    readonly id: string;
+    readonly displayName: string;
+    readonly permissions: ReadonlyArray<GQLUserPermission>;
+  }>;
   readonly myOrg?: {
     readonly __typename: 'Org';
     readonly hasAppealsEnabled: boolean;
@@ -10045,6 +10123,7 @@ export type GQLManualReviewQueueQuery = {
     readonly id: string;
     readonly name: string;
     readonly description?: string | null;
+    readonly assignedRoleIds: ReadonlyArray<string>;
     readonly hiddenActionIds: ReadonlyArray<string>;
     readonly isAppealsQueue: boolean;
     readonly autoCloseJobs: boolean;
@@ -28881,6 +28960,12 @@ export const GQLActionsDocument = gql`
           description
           penalty
           applyUserStrikes
+          itemTypes {
+            ... on ItemTypeBase {
+              id
+              name
+            }
+          }
         }
         ... on CustomAction {
           parameters {
@@ -33037,6 +33122,11 @@ export type GQLGetDecisionsTableQueryResult = Apollo.QueryResult<
 >;
 export const GQLQueueFormDataDocument = gql`
   query QueueFormData {
+    rolesForOrg {
+      id
+      displayName
+      permissions
+    }
     myOrg {
       hasAppealsEnabled
       hasPartialItemsEndpoint
@@ -33159,6 +33249,7 @@ export const GQLManualReviewQueueDocument = gql`
         explicitlyAssignedReviewers {
           id
         }
+        assignedRoleIds
         hiddenActionIds
         isAppealsQueue
         autoCloseJobs

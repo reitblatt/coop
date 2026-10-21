@@ -29,22 +29,19 @@ To get Coop running:
 
    ```
    0.40.4
-   Found '.nvmrc' with version <24.21.0>
-   v24.21.0 is already installed.
-   Now using node v24.21.0 (npm v11.19.0)
+   Found '.nvmrc' with version <24.22.1>
+   v24.22.1 is already installed.
+   Now using node v24.22.1 (npm v11.19.1)
    Docker version 29.4.3, build 055a478
    ```
 
    If you get an error instead, see [Prerequisites](local.md#prerequisites).
 
-2. **Install dependencies** with `npm` in the root folder and for each sub-package.
+2. **Install dependencies** for every package with one `pnpm install` from the root folder.
 
    ```sh
    # coop/
-   npm install
-   (cd db && npm install)
-   (cd server && npm install)
-   (cd client && npm install)
+   pnpm install
    ```
 
 3. **Copy example environment files** in `db/`, `server/`, and `client/`. The defaults work out of the box for local development and demoing. See [Environment Setup](local.md#environment-setup) for more details.
@@ -60,7 +57,7 @@ To get Coop running:
 
    ```sh
    # coop/
-   npm run up
+   pnpm run up
    ```
 
    Wait for PostgreSQL, ClickHouse, ScyllaDB, and Redis to be healthy before continuing; you can check progress with `docker ps`.
@@ -69,13 +66,13 @@ To get Coop running:
 
    ```sh
    # coop/
-   npm run db:create -- --env staging --db api-server-pg
-   npm run db:create -- --env staging --db scylla
-   npm run db:create -- --env staging --db clickhouse
+   pnpm run db:create --env staging --db api-server-pg
+   pnpm run db:create --env staging --db scylla
+   pnpm run db:create --env staging --db clickhouse
 
-   npm run db:update -- --env staging --db api-server-pg
-   npm run db:update -- --env staging --db scylla
-   npm run db:update -- --env staging --db clickhouse
+   pnpm run db:update --env staging --db api-server-pg
+   pnpm run db:update --env staging --db scylla
+   pnpm run db:update --env staging --db clickhouse
    ```
 
 6. **Create an organization and admin user** using the `create-org` script from the `server/` folder, providing the appropriate details.
@@ -84,7 +81,7 @@ To get Coop running:
 
    ```sh
    # coop/server/
-   npm run create-org -- \
+   pnpm run create-org \
      --name "Your Organization" \
      --website "https://example.com" \
      --email "email@example.com" \
@@ -104,7 +101,7 @@ To get Coop running:
    cd ..
 
    # coop/
-   npm run start
+   pnpm run start
    ```
 
    Log in at [localhost:3000](http://localhost:3000) using the credentials you provided when running `create-org`. The initial page load may take a moment.
