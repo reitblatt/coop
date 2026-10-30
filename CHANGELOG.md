@@ -26,6 +26,10 @@ For more information about each release including git tags and artifacts, see [R
 - Fix missing database row for new deployments ([#1486](https://github.com/roostorg/coop/pull/1486) by [@taobojlen](https://github.com/taobojlen)).
 - Opening a review queue with no unskipped jobs no longer leaves reviewers on a loading spinner ([#1392](https://github.com/roostorg/coop/pull/1392) by [@Joseph-Mutua](https://github.com/Joseph-Mutua))
 
+### Security
+
+- Upgrade body-parser to 2.4.0 for CVE-2026-111181 ([GHSA-c3r3-vg94-mqrx](https://github.com/roostorg/coop/security/advisories/GHSA-c3r3-vg94-mqrx) by [@serendipty01](https://github.com/serendipty01))
+
 ## [1.2.0] - 2026-10-21
 
 ### Added
